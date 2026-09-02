@@ -1,0 +1,156 @@
+// ============================================================================
+// Blue Abyss — World & Category Accents  (v2 — post-restructure)
+// ============================================================================
+// A Discourse THEME COMPONENT (not a full theme) — installed under
+// Admin > Customize > Themes > Install > "From a git repository", then
+// added as a component on top of the active theme.
+//
+// WHAT THIS DOES
+// Discourse adds a `category-<slug>` class to <body> whenever you're viewing
+// a category or a topic inside one. This component overrides Discourse's own
+// color-scheme CSS variables (--tertiary, --tertiary-low, --header_background,
+// --header_primary — the same variables every Discourse color palette is built
+// from) scoped to each category's body class. That's the safest hook available:
+// it rides on Discourse's public, stable theming API instead of guessing at
+// internal component class names that change across versions.
+//
+// EFFECT: links, "new"/unread indicators, selected states, and the header bar
+// pick up each category's accent color while you're browsing it or a topic
+// inside it. It does NOT touch layout.
+//
+// ----------------------------------------------------------------------------
+// CHANGELOG since v1 (the first commit in this repo)
+// ----------------------------------------------------------------------------
+// Commons absorbed Informative, Daily life, Arts, Technology & Internet
+// Culture, and Predictions as direct subcategories — plus the 19 categories
+// that used to be grandchildren under those five (Linguistics, Programming,
+// Math, History, Science, Sociology, Today I Learned, Psychology, Technology,
+// Editorials, Media, Food, Games and puzzles, Miscellaneous, Sports,
+// Well Being, Music, Literature, Film). Commons is now ONE world with 24
+// subcategories, not five differently-hued ones — v1's per-category hue
+// scheme for Informative/Daily life/Arts/Tech/Predictions no longer matches
+// the site structure. v2 gives Commons a single shared accent instead,
+// the same way the Abyss already works below.
+//
+// EVERY SUBCATEGORY SELECTOR BELOW IS WRITTEN TWICE — once as the bare slug
+// (category-<slug>) and once as the compound slug (category-<parent-slug>-
+// <slug>) — because I set this up without a logged-in session on
+// blueabyss.group (it's login-gated) and can't confirm live which form
+// Discourse is actually rendering for a nested category's <body> class.
+// Five slugs are literally reused across different parents on this forum
+// (philosophy, economics, law, miscellaneous, well-being — each shared
+// between an Academy-or-Commons category and an Abyss one), so guessing
+// wrong here silently paints the wrong forum's pages. Writing both forms
+// is correct regardless of which one Discourse renders.
+//
+// TO VERIFY AND SIMPLIFY: open a Commons subcategory (e.g. /c/commons/
+// linguistics), view source or check devtools for the real <body class="...">,
+// then delete whichever half of each pair didn't match. The five colliding
+// slugs (see SLUG COLLISIONS below) are the ones most worth double-checking —
+// everywhere else, an unused selector is just harmless dead weight.
+//
+// SLUG COLLISIONS ON THIS FORUM (same slug, different parent):
+//   philosophy    — Academy's Philosophy (top-level) vs. Abyss > Philosophy (BA)
+//   economics     — Academy's Economics (top-level) vs. Abyss > Economics (BA)
+//   law           — Academy's Law (top-level) vs. Abyss > Law (BA)
+//   miscellaneous — Commons > Miscellaneous vs. Abyss > Miscellaneous
+//   well-being    — Commons > Well Being vs. Abyss > Well Being
+// The Academy/top-level side of a collision only ever needs the bare form
+// (top-level categories don't get compounded). The Abyss/Commons side of
+// each pair below is written compound-only, on purpose — there's no safe
+// bare fallback for those five.
+// ============================================================================
+
+@mixin category-accent($hue, $chroma: 0.14, $lightness: 58%) {
+  --tertiary: oklch(#{$lightness} #{$chroma} #{$hue});
+  --tertiary-low: oklch(#{$lightness} #{$chroma} #{$hue} / 10%);
+  --header_background: oklch(97% 0.01 #{$hue});
+  --header_primary: oklch(22% #{$chroma} #{$hue});
+}
+
+// ---------------------------------------------------------------------------
+// THE ACADEMY — six top-level categories, same chroma/lightness "family,"
+// hue is the only thing that varies, so they read as siblings. Politics
+// (Conventional) runs a touch darker/more saturated — it's the busiest
+// room on the forum. Matches the Style-tab colors set on each category.
+// ---------------------------------------------------------------------------
+body.category-philosophy          { @include category-accent(265); }          // Philosophy — #5176CD
+body.category-religious-studies   { @include category-accent(320, 0.13); }    // Religious Studies — #9C5EAA
+body.category-economics           { @include category-accent(165); }          // Economics — #009365
+body.category-law                 { @include category-accent(55, 0.13); }     // Law — #B3621E
+body.category-mainstream-politics { @include category-accent(35, 0.19, 52%); } // Politics (Conventional) — #BD2900
+body.category-politics-critical   { @include category-accent(300, 0.13); }    // Politics (Critical) — #8766BB
+
+// ---------------------------------------------------------------------------
+// THE COMMONS — one shared accent (same hue family as the Commons category's
+// own teal, #1C989E) applied to Commons itself and every one of its 24
+// subcategories, so the whole world reads as one place no matter which
+// room you're in — mirroring how the Abyss already works below.
+// ---------------------------------------------------------------------------
+$commons-hue: 200;
+$commons-chroma: 0.12;
+$commons-lightness: 58%;
+
+body.category-commons,
+
+// non-colliding subcategories: bare + compound, either can match
+body.category-informative,                     body.category-commons-informative,
+body.category-daily-life,                      body.category-commons-daily-life,
+body.category-arts,                            body.category-commons-arts,
+body.category-technology-amp-internet-culture, body.category-commons-technology-amp-internet-culture,
+body.category-predictions,                     body.category-commons-predictions,
+body.category-linguistics,                     body.category-commons-linguistics,
+body.category-programming,                     body.category-commons-programming,
+body.category-math,                            body.category-commons-math,
+body.category-history,                         body.category-commons-history,
+body.category-science,                         body.category-commons-science,
+body.category-sociology,                       body.category-commons-sociology,
+body.category-today-i-learned,                 body.category-commons-today-i-learned,
+body.category-psychology,                      body.category-commons-psychology,
+body.category-technology,                      body.category-commons-technology,
+body.category-editorials,                      body.category-commons-editorials,
+body.category-media,                           body.category-commons-media,
+body.category-food,                            body.category-commons-food,
+body.category-games-and-puzzles,               body.category-commons-games-and-puzzles,
+body.category-sports,                          body.category-commons-sports,
+body.category-music,                           body.category-commons-music,
+body.category-literature,                      body.category-commons-literature,
+body.category-film,                            body.category-commons-film,
+
+// colliding slugs: compound-only, no safe bare form (see SLUG COLLISIONS above)
+body.category-commons-miscellaneous,
+body.category-commons-well-being
+{
+  @include category-accent($commons-hue, $commons-chroma, $commons-lightness);
+}
+
+// ---------------------------------------------------------------------------
+// THE ABYSS — one shared bioluminescent accent rather than per-category hues,
+// since this world is meant to read as a single, unified inner sanctum.
+// Covers the top-level BlueAbyss page and all 14 of its subcategories.
+// ---------------------------------------------------------------------------
+body.category-blue-abyss,
+
+// non-colliding subcategories: bare + compound
+body.category-culture-war,          body.category-blue-abyss-culture-war,
+body.category-ethics,               body.category-blue-abyss-ethics,
+body.category-introductions,        body.category-blue-abyss-introductions,
+body.category-meet-up,              body.category-blue-abyss-meet-up,
+body.category-politics-and-govt,    body.category-blue-abyss-politics-and-govt,
+body.category-religion,             body.category-blue-abyss-religion,
+body.category-social-norms,         body.category-blue-abyss-social-norms,
+body.category-society,              body.category-blue-abyss-society,
+body.category-tmi,                  body.category-blue-abyss-tmi,
+
+// colliding slugs: compound-only, no safe bare form (see SLUG COLLISIONS above)
+body.category-blue-abyss-philosophy,   // Philosophy (BA) — collides with Academy's Philosophy
+body.category-blue-abyss-economics,    // Economics (BA) — collides with Academy's Economics
+body.category-blue-abyss-law,          // Law (BA) — collides with Academy's Law
+body.category-blue-abyss-miscellaneous, // collides with Commons' Miscellaneous
+body.category-blue-abyss-well-being    // collides with Commons' Well Being
+{
+  --tertiary: oklch(70% 0.15 195);
+  --tertiary-low: oklch(70% 0.15 195 / 10%);
+  --header_background: oklch(16% 0.03 220);
+  --header_primary: oklch(92% 0.04 195);
+}
