@@ -1,5 +1,5 @@
 // ============================================================================
-// Blue Abyss — World & Category Accents  (v7 — fixed transparent-dropdown bug)
+// Blue Abyss — World & Category Accents  (v8 — light/dark mode support)
 // ============================================================================
 // A Discourse THEME COMPONENT (not a full theme) — installed under
 // Admin > Customize > Themes > Install > "From a git repository", then
@@ -17,28 +17,45 @@
 // theming API — the safest hook available — rather than guessing at internal
 // component class names that change across versions.
 //
-// EFFECT: links, "new"/unread indicators, selected states, the header bar,
+// EFFECT: links, "new"/unread indicators, selected states, the header text,
 // AND the page background (sidebar, content gaps, topic-list rows) pick up
 // each category's color while you're browsing it or a topic inside it. It
-// does NOT touch layout, and it does NOT change the site out of dark mode —
-// every world still renders on a dark surface, just tinted and with a subtle
-// top-down glow instead of Discourse's neutral flat #1a1a1a everywhere.
+// does NOT touch layout.
+//
+// LIGHT MODE AND DARK MODE (see CHANGELOG v8)
+// This site has no manual light/dark toggle — Discourse picks a palette
+// purely from the browser/OS's `prefers-color-scheme`, compiling each
+// palette (e.g. "Royal" / "Royal Dark") into its own stylesheet and loading
+// both via `<link media="(prefers-color-scheme: light|dark)">`, so only one
+// is ever actually applied. Through v7 this component's overrides were
+// UNCONDITIONAL literal colors, tuned only for the dark palette — fine in
+// dark mode, but in light mode they forced a dark wash underneath native
+// Royal Light text (itself dark, tuned for a light background), which is how
+// topic titles ended up rendering invisible. As of v8, every surface/wash
+// property below (and --header_primary) is wrapped in its own
+// `@media (prefers-color-scheme: ...)` block with a value tuned for that
+// mode. --tertiary/--tertiary-low (the accent color itself) stay
+// unconditional — this matches Discourse's own convention (confirmed by
+// diffing Royal's light vs dark `:root` blocks): the accent hue stays put
+// across modes, only surface/text roles swap.
 //
 // TWO "RECIPES"
 // Academy and Commons use a light recipe FOR THE HEADER: a near-white header
 // background (97% lightness) with dark text and a mid-tone accent — a bright
-// strip up top against an otherwise dark page. The Abyss uses a dark recipe
-// instead: a dark header (16% lightness) with bright text and a saturated,
-// brighter accent — "dark mode within light mode," meant to feel like a
-// bioluminescent inner sanctum. The v5 background wash is deliberately NOT
-// split the same way — every world keeps a dark page surface (close to the
-// site's native ~22% lightness neutral gray), just tinted by hue and lifted
-// with a glow at the top, fading to the base tone by mid-page. Making Academy
-// pages fully light-mode would have inverted the whole reading experience
-// per category, which felt like a bigger, more jarring change than "give each
-// room a background" called for. Within each recipe, hue is what gives an
-// individual category or world its own identity — the same hue drives both
-// the accent and the background glow, so a room's colors read as one palette.
+// strip up top. The Abyss uses a dark recipe instead: a dark header (16%
+// lightness) with bright text and a saturated, brighter accent — "dark mode
+// within light mode," meant to feel like a bioluminescent inner sanctum.
+// NOTE (found in v8, see CHANGELOG): --header_background turns out to be
+// inert under the active theme (Horizon) — it paints `.d-header` from a
+// different, non-category variable instead (see CHANGELOG v8) — so this
+// light/dark header distinction has never actually been visible; it's left
+// in place as harmless, correct-per-the-API code, flagged here rather than
+// silently removed. --header_primary (the paired text/icon color) IS real,
+// and as of v8 follows the page's actual light/dark mode rather than the
+// category's recipe, since the real header background does the same. Within
+// each recipe, hue is what gives an individual category or world its own
+// identity — the same hue drives the accent and the background wash, so a
+// room's colors read as one palette in both light and dark mode.
 //
 // ----------------------------------------------------------------------------
 // CHANGELOG
@@ -118,25 +135,90 @@
 //     the CSSOM that --d-sidebar-background was NOT part of this bug —
 //     Horizon already consumes it correctly via `background-image` — so the
 //     sidebar's glow is untouched by this fix.
+// v8: fixed a real bug, reported as "the changes only work in dark mode."
+//     Root cause: this site has no manual light/dark toggle — Discourse
+//     switches palettes purely off the browser/OS's `prefers-color-scheme`,
+//     via two separately `media`-gated stylesheet <link> tags (one per
+//     compiled palette). Every surface override in this file (--secondary,
+//     --d-sidebar-background, --d-content-background, --category-content-
+//     glow, the topic-list variables) was an unconditional dark-toned literal
+//     color, so it got force-applied even when the browser resolved to the
+//     LIGHT palette, sitting underneath Royal Light's native dark text —
+//     dark-on-dark, which is why some topic titles were fully invisible in
+//     light mode, not just "off-brand." Reproduced by forcing this session's
+//     browser pane into light mode (setting the light/dark <link> elements'
+//     `.media` directly via JS, since real OS-level `prefers-color-scheme`
+//     can't be toggled from page JS) and screenshotting an Abyss and an
+//     Academy/Commons category — both showed the dark wash clashing with
+//     native light-mode text and chrome. Fixed by wrapping every
+//     surface/wash property in each mixin in its own
+//     `@media (prefers-color-scheme: dark)` / `(prefers-color-scheme: light)`
+//     block, with a new pale/near-white-toned palette designed for light mode
+//     (mirroring the dark recipe's structure: a hue-tinted glow at the top
+//     fading to a near-white base, instead of fading to near-black) —
+//     validated live using the same forced-<link>-media technique before
+//     committing. --tertiary/--tertiary-low are left unconditional, matching
+//     Discourse's own convention (confirmed by diffing Royal light vs. Royal
+//     dark's native `:root` blocks: the accent hue is identical between the
+//     two, only surface/text roles swap).
+//        While investigating why --header_background's light/dark split
+//     wasn't visibly changing the header bar's color, found — via the same
+//     CSSOM-enumeration technique as v7 — that Horizon paints `.d-header`'s
+//     actual background from a completely different, html-scoped variable,
+//     --background-color, itself a `light-dark()` function of the SITE-WIDE
+//     global tertiary color (independent of category). This means
+//     --header_background has likely never painted the header bar in this
+//     component's lifetime, in either mode — a pre-existing, harmless
+//     dead-code issue, left in place rather than silently deleted since it's
+//     still correct per Discourse's documented API surface. --header_primary
+//     (the paired icon/link-color variable), by contrast, IS genuinely
+//     consumed by Horizon in many places (header icons, topic-title link
+//     color, badges, the language switcher, the sidebar toggle) — and since
+//     the REAL header background flips with `prefers-color-scheme` (light in
+//     light mode, dark in dark mode) for every category regardless of
+//     recipe, --header_primary now follows the page's actual mode rather
+//     than the category's light-header/dark-header recipe: dark text in
+//     light mode, light text in dark mode, for both mixins. This also fixes
+//     a second, previously-unnoticed instance of the same invisible-text bug
+//     that v8 was reported for: Academy/Commons categories were forcing dark
+//     header text unconditionally, which was invisible against the real
+//     header bar in DARK mode (its "light recipe" header background never
+//     actually applied, so in dark mode the true header bar is dark too).
 // ============================================================================
 
 // Light-header recipe — Academy and Commons.
 @mixin category-accent($hue, $chroma: 0.14, $lightness: 58%) {
   --tertiary: oklch(#{$lightness} #{$chroma} #{$hue});
   --tertiary-low: oklch(#{$lightness} #{$chroma} #{$hue} / 10%);
+  // Inert under the active theme (Horizon) — see CHANGELOG v8. Left as-is:
+  // harmless, and correct per Discourse's documented theming API.
   --header_background: oklch(97% 0.01 #{$hue});
-  --header_primary: oklch(22% #{$chroma} #{$hue});
 
-  // Background wash + depth glow — dark surface regardless of header recipe.
-  --secondary: oklch(22% 0.02 #{$hue});
-  --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 32%) 0%, oklch(22% 0.02 #{$hue}) 55%);
-  // --d-content-background MUST stay a flat color — see CHANGELOG v7. The
-  // actual content-area glow lives in --category-content-glow instead.
-  --d-content-background: oklch(22% 0.02 #{$hue});
-  --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 25%) 0%, oklch(22% 0.02 #{$hue}) 45%);
-  --topic-list-item-background-color: oklch(22% 0.02 #{$hue});
-  --topic-list-item-background-color--visited: oklch(22% 0.02 #{$hue});
-  --d-topic-list-header-background-color: oklch(22% 0.02 #{$hue});
+  // --header_primary + the background wash are TUNED PER COLOR-SCHEME as of
+  // v8 — see CHANGELOG v8 for why. --d-content-background MUST stay a flat
+  // color in both modes — see CHANGELOG v7 — the content-area glow lives in
+  // --category-content-glow instead.
+  @media (prefers-color-scheme: light) {
+    --header_primary: oklch(22% #{$chroma} #{$hue});
+    --secondary: oklch(97% 0.015 #{$hue});
+    --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 30%) 0%, oklch(97% 0.015 #{$hue}) 55%);
+    --d-content-background: oklch(97% 0.015 #{$hue});
+    --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 22%) 0%, oklch(97% 0.015 #{$hue}) 45%);
+    --topic-list-item-background-color: oklch(97% 0.015 #{$hue});
+    --topic-list-item-background-color--visited: oklch(95.5% 0.015 #{$hue});
+    --d-topic-list-header-background-color: oklch(97% 0.015 #{$hue});
+  }
+
+  @media (prefers-color-scheme: dark) {
+    --header_primary: oklch(92% #{$chroma} #{$hue});
+    --secondary: oklch(22% 0.02 #{$hue});
+    --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 32%) 0%, oklch(22% 0.02 #{$hue}) 55%);
+    --d-content-background: oklch(22% 0.02 #{$hue});
+    --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 25%) 0%, oklch(22% 0.02 #{$hue}) 45%);
+    --topic-list-item-background-color: oklch(22% 0.02 #{$hue});
+    --topic-list-item-background-color--visited: oklch(22% 0.02 #{$hue});
+    --d-topic-list-header-background-color: oklch(22% 0.02 #{$hue});
+  }
 }
 
 // Dark/glow recipe — the Abyss. Slightly deeper baseline (20% vs 22%) and a
@@ -145,18 +227,35 @@
 @mixin abyss-category-accent($hue, $chroma: 0.15, $lightness: 70%) {
   --tertiary: oklch(#{$lightness} #{$chroma} #{$hue});
   --tertiary-low: oklch(#{$lightness} #{$chroma} #{$hue} / 10%);
+  // Inert under the active theme (Horizon) — see CHANGELOG v8. Left as-is:
+  // harmless, and correct per Discourse's documented theming API.
   --header_background: oklch(16% 0.03 #{$hue});
-  --header_primary: oklch(92% 0.04 #{$hue});
 
-  --secondary: oklch(20% 0.03 #{$hue});
-  --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 45%) 0%, oklch(20% 0.03 #{$hue}) 60%);
-  // --d-content-background MUST stay a flat color — see CHANGELOG v7. The
-  // actual content-area glow lives in --category-content-glow instead.
-  --d-content-background: oklch(20% 0.03 #{$hue});
-  --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 34%) 0%, oklch(20% 0.03 #{$hue}) 50%);
-  --topic-list-item-background-color: oklch(20% 0.03 #{$hue});
-  --topic-list-item-background-color--visited: oklch(20% 0.03 #{$hue});
-  --d-topic-list-header-background-color: oklch(20% 0.03 #{$hue});
+  // --header_primary + the background wash are TUNED PER COLOR-SCHEME as of
+  // v8 — see CHANGELOG v8 for why. --d-content-background MUST stay a flat
+  // color in both modes — see CHANGELOG v7 — the content-area glow lives in
+  // --category-content-glow instead.
+  @media (prefers-color-scheme: light) {
+    --header_primary: oklch(24% #{$chroma} #{$hue});
+    --secondary: oklch(97% 0.02 #{$hue});
+    --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 35%) 0%, oklch(97% 0.02 #{$hue}) 55%);
+    --d-content-background: oklch(97% 0.02 #{$hue});
+    --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 26%) 0%, oklch(97% 0.02 #{$hue}) 45%);
+    --topic-list-item-background-color: oklch(97% 0.02 #{$hue});
+    --topic-list-item-background-color--visited: oklch(95.5% 0.02 #{$hue});
+    --d-topic-list-header-background-color: oklch(97% 0.02 #{$hue});
+  }
+
+  @media (prefers-color-scheme: dark) {
+    --header_primary: oklch(92% #{$chroma} #{$hue});
+    --secondary: oklch(20% 0.03 #{$hue});
+    --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 45%) 0%, oklch(20% 0.03 #{$hue}) 60%);
+    --d-content-background: oklch(20% 0.03 #{$hue});
+    --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 34%) 0%, oklch(20% 0.03 #{$hue}) 50%);
+    --topic-list-item-background-color: oklch(20% 0.03 #{$hue});
+    --topic-list-item-background-color--visited: oklch(20% 0.03 #{$hue});
+    --d-topic-list-header-background-color: oklch(20% 0.03 #{$hue});
+  }
 }
 
 // ---------------------------------------------------------------------------
