@@ -1,5 +1,5 @@
 // ============================================================================
-// Blue Abyss — World & Category Accents  (v3 — verified & simplified)
+// Blue Abyss — World & Category Accents  (v4 — Abyss subcategory hues)
 // ============================================================================
 // A Discourse THEME COMPONENT (not a full theme) — installed under
 // Admin > Customize > Themes > Install > "From a git repository", then
@@ -17,6 +17,15 @@
 // EFFECT: links, "new"/unread indicators, selected states, and the header bar
 // pick up each category's accent color while you're browsing it or a topic
 // inside it. It does NOT touch layout.
+//
+// TWO "RECIPES"
+// Academy and Commons use a light recipe: a near-white header background
+// (97% lightness) with dark text and a mid-tone accent — the site's normal
+// light-mode feel. The Abyss uses a dark recipe instead: a dark header
+// background (16% lightness) with bright text and a saturated, brighter
+// accent — a "dark mode within light mode" meant to feel like a
+// bioluminescent inner sanctum. Within each recipe, hue is what gives an
+// individual category or world its own identity.
 //
 // ----------------------------------------------------------------------------
 // CHANGELOG
@@ -38,13 +47,31 @@
 //     and /c/blue-abyss/philosophy (→ category-blue-abyss-philosophy, correctly
 //     picking up the Abyss accent rather than colliding with Academy's
 //     Philosophy). All unused bare-slug selectors for subcategories removed.
+// v4: the Abyss's 14 subcategories each get their own hue now, the same way
+//     Academy's 6 top-level categories do, instead of sharing one accent.
+//     They keep the Abyss's dark recipe (bright glow on a dark header) so the
+//     world as a whole still reads as visually distinct from Academy/Commons —
+//     only the hue varies room to room now, evenly spaced around the wheel.
+//     The top-level BlueAbyss page keeps the original single accent (hue 195)
+//     as its own "base" identity. Commons is unchanged: still one shared
+//     accent across all 24 subcategories, since that world is meant to read
+//     as one place rather than many distinct rooms.
 // ============================================================================
 
+// Light recipe — Academy and Commons.
 @mixin category-accent($hue, $chroma: 0.14, $lightness: 58%) {
   --tertiary: oklch(#{$lightness} #{$chroma} #{$hue});
   --tertiary-low: oklch(#{$lightness} #{$chroma} #{$hue} / 10%);
   --header_background: oklch(97% 0.01 #{$hue});
   --header_primary: oklch(22% #{$chroma} #{$hue});
+}
+
+// Dark/glow recipe — the Abyss.
+@mixin abyss-category-accent($hue, $chroma: 0.15, $lightness: 70%) {
+  --tertiary: oklch(#{$lightness} #{$chroma} #{$hue});
+  --tertiary-low: oklch(#{$lightness} #{$chroma} #{$hue} / 10%);
+  --header_background: oklch(16% 0.03 #{$hue});
+  --header_primary: oklch(92% 0.04 #{$hue});
 }
 
 // ---------------------------------------------------------------------------
@@ -65,7 +92,7 @@ body.category-politics-critical   { @include category-accent(300, 0.13); }    //
 // THE COMMONS — one shared accent (same hue family as the Commons category's
 // own teal, #1C989E) applied to Commons itself and every one of its 24
 // subcategories, so the whole world reads as one place no matter which
-// room you're in — mirroring how the Abyss already works below.
+// room you're in.
 //
 // Commons itself is top-level (bare class). Every subcategory below is
 // nested, so Discourse only ever renders its compound
@@ -105,35 +132,32 @@ body.category-commons-well-being
 }
 
 // ---------------------------------------------------------------------------
-// THE ABYSS — one shared bioluminescent accent rather than per-category hues,
-// since this world is meant to read as a single, unified inner sanctum.
-// Covers the top-level BlueAbyss page and all 14 of its subcategories.
+// THE ABYSS — top-level page keeps the original single bioluminescent accent
+// as its own "base" identity. Its 14 subcategories each get their own hue
+// instead (see CHANGELOG v4), evenly spaced around the wheel, but all still
+// use the Abyss's dark/glow recipe rather than Academy's light one — so the
+// Abyss as a whole still reads as a distinct place, room to room within it
+// now reads as distinct too.
 //
-// BlueAbyss itself is top-level (bare class). Every subcategory below is
-// nested, so Discourse only ever renders its compound
-// `category-blue-abyss-<slug>` class — confirmed live, see CHANGELOG v3.
-// This also correctly separates Abyss's Philosophy/Economics/Law/
-// Miscellaneous/Well Being from the Academy/Commons categories that share
-// those slugs, since the compound class is parent-scoped.
+// Every subcategory below is nested, so Discourse only ever renders its
+// compound `category-blue-abyss-<slug>` class — confirmed live, see
+// CHANGELOG v3. This also correctly separates Abyss's Philosophy/Economics/
+// Law/Miscellaneous/Well Being from the Academy/Commons categories that
+// share those slugs, since the compound class is parent-scoped.
 // ---------------------------------------------------------------------------
-body.category-blue-abyss,
-body.category-blue-abyss-culture-war,
-body.category-blue-abyss-ethics,
-body.category-blue-abyss-introductions,
-body.category-blue-abyss-meet-up,
-body.category-blue-abyss-politics-and-govt,
-body.category-blue-abyss-religion,
-body.category-blue-abyss-social-norms,
-body.category-blue-abyss-society,
-body.category-blue-abyss-tmi,
-body.category-blue-abyss-philosophy,
-body.category-blue-abyss-economics,
-body.category-blue-abyss-law,
-body.category-blue-abyss-miscellaneous,
-body.category-blue-abyss-well-being
-{
-  --tertiary: oklch(70% 0.15 195);
-  --tertiary-low: oklch(70% 0.15 195 / 10%);
-  --header_background: oklch(16% 0.03 220);
-  --header_primary: oklch(92% 0.04 195);
-}
+body.category-blue-abyss { @include abyss-category-accent(195); } // The Abyss — base glow
+
+body.category-blue-abyss-culture-war       { @include abyss-category-accent(15); }
+body.category-blue-abyss-ethics            { @include abyss-category-accent(40); }
+body.category-blue-abyss-introductions     { @include abyss-category-accent(65); }
+body.category-blue-abyss-meet-up           { @include abyss-category-accent(90); }
+body.category-blue-abyss-politics-and-govt { @include abyss-category-accent(115); }
+body.category-blue-abyss-religion          { @include abyss-category-accent(140); }
+body.category-blue-abyss-social-norms      { @include abyss-category-accent(165); }
+body.category-blue-abyss-society           { @include abyss-category-accent(190); }
+body.category-blue-abyss-tmi               { @include abyss-category-accent(215); }
+body.category-blue-abyss-philosophy        { @include abyss-category-accent(240); } // Philosophy (BA)
+body.category-blue-abyss-economics         { @include abyss-category-accent(265); } // Economics (BA)
+body.category-blue-abyss-law               { @include abyss-category-accent(290); } // Law (BA)
+body.category-blue-abyss-miscellaneous     { @include abyss-category-accent(315); }
+body.category-blue-abyss-well-being        { @include abyss-category-accent(340); }
