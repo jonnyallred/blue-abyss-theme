@@ -1,5 +1,5 @@
 // ============================================================================
-// Blue Abyss — World & Category Accents  (v5 — background wash + depth glow)
+// Blue Abyss — World & Category Accents  (v6 — background wash + depth glow)
 // ============================================================================
 // A Discourse THEME COMPONENT (not a full theme) — installed under
 // Admin > Customize > Themes > Install > "From a git repository", then
@@ -85,6 +85,14 @@
 //     per-row surfaces and --secondary. Site's native background (#1a1a1a) is
 //     oklch(21.78% 0 —); the wash keeps roughly that lightness so untouched
 //     pages (Uncategorized, etc.) don't look mismatched.
+// v6: bumped the glow opacity after live testing showed v5's numbers (20-28%
+//     top alpha) were nearly invisible on the sidebar specifically — legible
+//     on the content backdrop, but washed out next to the sidebar's colorful
+//     icons and the blue "New Topic" button. Confirmed the rendering pipeline
+//     itself was fine (an 80% test value was clearly visible) before settling
+//     on a middle value: sidebar/content glow raised to 32%/25% (Academy,
+//     Commons) and 45%/34% (Abyss) top alpha. Verified live on both a
+//     light-header (Commons) and dark-header (Abyss/Ethics) page.
 // ============================================================================
 
 // Light-header recipe — Academy and Commons.
@@ -96,8 +104,8 @@
 
   // Background wash + depth glow — dark surface regardless of header recipe.
   --secondary: oklch(22% 0.02 #{$hue});
-  --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 20%) 0%, oklch(22% 0.02 #{$hue}) 55%);
-  --d-content-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 16%) 0%, oklch(22% 0.02 #{$hue}) 45%);
+  --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 32%) 0%, oklch(22% 0.02 #{$hue}) 55%);
+  --d-content-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 25%) 0%, oklch(22% 0.02 #{$hue}) 45%);
   --topic-list-item-background-color: oklch(22% 0.02 #{$hue});
   --topic-list-item-background-color--visited: oklch(22% 0.02 #{$hue});
   --d-topic-list-header-background-color: oklch(22% 0.02 #{$hue});
@@ -113,8 +121,8 @@
   --header_primary: oklch(92% 0.04 #{$hue});
 
   --secondary: oklch(20% 0.03 #{$hue});
-  --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 28%) 0%, oklch(20% 0.03 #{$hue}) 60%);
-  --d-content-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 22%) 0%, oklch(20% 0.03 #{$hue}) 50%);
+  --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 45%) 0%, oklch(20% 0.03 #{$hue}) 60%);
+  --d-content-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 34%) 0%, oklch(20% 0.03 #{$hue}) 50%);
   --topic-list-item-background-color: oklch(20% 0.03 #{$hue});
   --topic-list-item-background-color--visited: oklch(20% 0.03 #{$hue});
   --d-topic-list-header-background-color: oklch(20% 0.03 #{$hue});
