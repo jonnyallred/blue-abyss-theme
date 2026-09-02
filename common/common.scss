@@ -1,5 +1,5 @@
 // ============================================================================
-// Blue Abyss — World & Category Accents  (v4 — Abyss subcategory hues)
+// Blue Abyss — World & Category Accents  (v5 — background wash + depth glow)
 // ============================================================================
 // A Discourse THEME COMPONENT (not a full theme) — installed under
 // Admin > Customize > Themes > Install > "From a git repository", then
@@ -8,24 +8,37 @@
 // WHAT THIS DOES
 // Discourse adds a `category-<slug>` class to <body> whenever you're viewing
 // a category or a topic inside one. This component overrides Discourse's own
-// color-scheme CSS variables (--tertiary, --tertiary-low, --header_background,
-// --header_primary — the same variables every Discourse color palette is built
-// from) scoped to each category's body class. That's the safest hook available:
-// it rides on Discourse's public, stable theming API instead of guessing at
-// internal component class names that change across versions.
+// color-scheme CSS variables scoped to each category's body class — accent
+// variables (--tertiary, --tertiary-low, --header_background, --header_primary)
+// plus, since v5, the surface/background variables (--secondary,
+// --d-sidebar-background, --d-content-background, --topic-list-item-background-
+// color(--visited), --d-topic-list-header-background-color). All of these are
+// part of Discourse's own public, stable theming API — the safest hook
+// available — rather than guessing at internal component class names that
+// change across versions.
 //
-// EFFECT: links, "new"/unread indicators, selected states, and the header bar
-// pick up each category's accent color while you're browsing it or a topic
-// inside it. It does NOT touch layout.
+// EFFECT: links, "new"/unread indicators, selected states, the header bar,
+// AND the page background (sidebar, content gaps, topic-list rows) pick up
+// each category's color while you're browsing it or a topic inside it. It
+// does NOT touch layout, and it does NOT change the site out of dark mode —
+// every world still renders on a dark surface, just tinted and with a subtle
+// top-down glow instead of Discourse's neutral flat #1a1a1a everywhere.
 //
 // TWO "RECIPES"
-// Academy and Commons use a light recipe: a near-white header background
-// (97% lightness) with dark text and a mid-tone accent — the site's normal
-// light-mode feel. The Abyss uses a dark recipe instead: a dark header
-// background (16% lightness) with bright text and a saturated, brighter
-// accent — a "dark mode within light mode" meant to feel like a
-// bioluminescent inner sanctum. Within each recipe, hue is what gives an
-// individual category or world its own identity.
+// Academy and Commons use a light recipe FOR THE HEADER: a near-white header
+// background (97% lightness) with dark text and a mid-tone accent — a bright
+// strip up top against an otherwise dark page. The Abyss uses a dark recipe
+// instead: a dark header (16% lightness) with bright text and a saturated,
+// brighter accent — "dark mode within light mode," meant to feel like a
+// bioluminescent inner sanctum. The v5 background wash is deliberately NOT
+// split the same way — every world keeps a dark page surface (close to the
+// site's native ~22% lightness neutral gray), just tinted by hue and lifted
+// with a glow at the top, fading to the base tone by mid-page. Making Academy
+// pages fully light-mode would have inverted the whole reading experience
+// per category, which felt like a bigger, more jarring change than "give each
+// room a background" called for. Within each recipe, hue is what gives an
+// individual category or world its own identity — the same hue drives both
+// the accent and the background glow, so a room's colors read as one palette.
 //
 // ----------------------------------------------------------------------------
 // CHANGELOG
@@ -56,22 +69,55 @@
 //     as its own "base" identity. Commons is unchanged: still one shared
 //     accent across all 24 subcategories, since that world is meant to read
 //     as one place rather than many distinct rooms.
+// v5: added a background wash + depth glow, tested live before committing to
+//     the approach. Confirmed empirically (via document.body.style overrides
+//     on the live site) that --secondary only reaches minor elements
+//     (breadcrumb pills, tag badges) — the actual page surfaces are painted
+//     by separate design-token variables (--d-content-background, --d-sidebar-
+//     background, --topic-list-item-background-color(--visited), --d-topic-
+//     list-header-background-color) that Discourse bakes per color palette.
+//     Also confirmed those accept gradients (not just flat colors) on large
+//     singular elements like the sidebar and the content backdrop — but NOT
+//     on --topic-list-item-background-color, since that's applied per-row and
+//     a gradient there tiles into an ugly repeating stripe rather than one
+//     smooth page-level effect. So: gradient on the sidebar and content
+//     backdrop (a glow fading in from the top), flat tinted color on the
+//     per-row surfaces and --secondary. Site's native background (#1a1a1a) is
+//     oklch(21.78% 0 —); the wash keeps roughly that lightness so untouched
+//     pages (Uncategorized, etc.) don't look mismatched.
 // ============================================================================
 
-// Light recipe — Academy and Commons.
+// Light-header recipe — Academy and Commons.
 @mixin category-accent($hue, $chroma: 0.14, $lightness: 58%) {
   --tertiary: oklch(#{$lightness} #{$chroma} #{$hue});
   --tertiary-low: oklch(#{$lightness} #{$chroma} #{$hue} / 10%);
   --header_background: oklch(97% 0.01 #{$hue});
   --header_primary: oklch(22% #{$chroma} #{$hue});
+
+  // Background wash + depth glow — dark surface regardless of header recipe.
+  --secondary: oklch(22% 0.02 #{$hue});
+  --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 20%) 0%, oklch(22% 0.02 #{$hue}) 55%);
+  --d-content-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 16%) 0%, oklch(22% 0.02 #{$hue}) 45%);
+  --topic-list-item-background-color: oklch(22% 0.02 #{$hue});
+  --topic-list-item-background-color--visited: oklch(22% 0.02 #{$hue});
+  --d-topic-list-header-background-color: oklch(22% 0.02 #{$hue});
 }
 
-// Dark/glow recipe — the Abyss.
+// Dark/glow recipe — the Abyss. Slightly deeper baseline (20% vs 22%) and a
+// stronger glow, so the Abyss reads a shade darker and more luminous than
+// Academy/Commons — its "inner sanctum" feel, now carried into the background.
 @mixin abyss-category-accent($hue, $chroma: 0.15, $lightness: 70%) {
   --tertiary: oklch(#{$lightness} #{$chroma} #{$hue});
   --tertiary-low: oklch(#{$lightness} #{$chroma} #{$hue} / 10%);
   --header_background: oklch(16% 0.03 #{$hue});
   --header_primary: oklch(92% 0.04 #{$hue});
+
+  --secondary: oklch(20% 0.03 #{$hue});
+  --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 28%) 0%, oklch(20% 0.03 #{$hue}) 60%);
+  --d-content-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 22%) 0%, oklch(20% 0.03 #{$hue}) 50%);
+  --topic-list-item-background-color: oklch(20% 0.03 #{$hue});
+  --topic-list-item-background-color--visited: oklch(20% 0.03 #{$hue});
+  --d-topic-list-header-background-color: oklch(20% 0.03 #{$hue});
 }
 
 // ---------------------------------------------------------------------------
