@@ -1,5 +1,5 @@
 // ============================================================================
-// Blue Abyss — World & Category Accents  (v6 — background wash + depth glow)
+// Blue Abyss — World & Category Accents  (v7 — fixed transparent-dropdown bug)
 // ============================================================================
 // A Discourse THEME COMPONENT (not a full theme) — installed under
 // Admin > Customize > Themes > Install > "From a git repository", then
@@ -11,11 +11,11 @@
 // color-scheme CSS variables scoped to each category's body class — accent
 // variables (--tertiary, --tertiary-low, --header_background, --header_primary)
 // plus, since v5, the surface/background variables (--secondary,
-// --d-sidebar-background, --d-content-background, --topic-list-item-background-
-// color(--visited), --d-topic-list-header-background-color). All of these are
-// part of Discourse's own public, stable theming API — the safest hook
-// available — rather than guessing at internal component class names that
-// change across versions.
+// --d-sidebar-background, --d-content-background, --category-content-glow,
+// --topic-list-item-background-color(--visited), --d-topic-list-header-
+// background-color). All of these are part of Discourse's own public, stable
+// theming API — the safest hook available — rather than guessing at internal
+// component class names that change across versions.
 //
 // EFFECT: links, "new"/unread indicators, selected states, the header bar,
 // AND the page background (sidebar, content gaps, topic-list rows) pick up
@@ -76,13 +76,11 @@
 //     by separate design-token variables (--d-content-background, --d-sidebar-
 //     background, --topic-list-item-background-color(--visited), --d-topic-
 //     list-header-background-color) that Discourse bakes per color palette.
-//     Also confirmed those accept gradients (not just flat colors) on large
-//     singular elements like the sidebar and the content backdrop — but NOT
-//     on --topic-list-item-background-color, since that's applied per-row and
-//     a gradient there tiles into an ugly repeating stripe rather than one
-//     smooth page-level effect. So: gradient on the sidebar and content
-//     backdrop (a glow fading in from the top), flat tinted color on the
-//     per-row surfaces and --secondary. Site's native background (#1a1a1a) is
+//     Believed at the time that --d-content-background also accepted
+//     gradients safely on large singular elements — turned out to be wrong,
+//     see v7. Flat tinted color used on the per-row surfaces and --secondary,
+//     since a gradient there tiles into an ugly repeating stripe rather than
+//     one smooth page-level effect. Site's native background (#1a1a1a) is
 //     oklch(21.78% 0 —); the wash keeps roughly that lightness so untouched
 //     pages (Uncategorized, etc.) don't look mismatched.
 // v6: bumped the glow opacity after live testing showed v5's numbers (20-28%
@@ -93,6 +91,33 @@
 //     on a middle value: sidebar/content glow raised to 32%/25% (Academy,
 //     Commons) and 45%/34% (Abyss) top alpha. Verified live on both a
 //     light-header (Commons) and dark-header (Abyss/Ethics) page.
+// v7: fixed a real bug, reported as "the Ctrl+F/search-icon dropdown results
+//     are transparent and hard to read." Root cause: Horizon (the active
+//     theme) reads --d-content-background as a plain `background-color` in
+//     far more places than just the content backdrop — the search dropdown
+//     panel, the tag/category "select-kit" pickers, the markdown editor's
+//     textarea and preview, onebox/link-preview embeds, several admin pages,
+//     the full search page's header/filters, and the #main-outlet wrapper
+//     that holds the entire page's content. A gradient is an invalid value
+//     for `background-color` (only `background`/`background-image` accept
+//     one), so every one of those surfaces was silently computing to fully
+//     transparent — not just the one dropdown that got noticed. Root-caused
+//     by enumerating every CSS rule across all loaded stylesheets that
+//     references --d-content-background via the CSSOM (not just visual
+//     inspection) and checking which property actually consumed it, then
+//     confirming live that #main-outlet itself was ALSO transparent (the
+//     apparent "content glow" seen in v6 testing was really just the flat
+//     tinted topic-list rows sitting next to each other, not an actual
+//     gradient on the content area). Fixed by splitting the two roles that
+//     had been sharing one variable: --d-content-background goes back to
+//     being a flat color (the same tone as the topic-list tint), so every
+//     one of Horizon's own consumers renders correctly again; the gradient
+//     moves to a new --category-content-glow variable, applied to the real
+//     content backdrop (#main-outlet) via `background-image`, which safely
+//     accepts a gradient and has nothing else relying on it. Confirmed via
+//     the CSSOM that --d-sidebar-background was NOT part of this bug —
+//     Horizon already consumes it correctly via `background-image` — so the
+//     sidebar's glow is untouched by this fix.
 // ============================================================================
 
 // Light-header recipe — Academy and Commons.
@@ -105,7 +130,10 @@
   // Background wash + depth glow — dark surface regardless of header recipe.
   --secondary: oklch(22% 0.02 #{$hue});
   --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 32%) 0%, oklch(22% 0.02 #{$hue}) 55%);
-  --d-content-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 25%) 0%, oklch(22% 0.02 #{$hue}) 45%);
+  // --d-content-background MUST stay a flat color — see CHANGELOG v7. The
+  // actual content-area glow lives in --category-content-glow instead.
+  --d-content-background: oklch(22% 0.02 #{$hue});
+  --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 25%) 0%, oklch(22% 0.02 #{$hue}) 45%);
   --topic-list-item-background-color: oklch(22% 0.02 #{$hue});
   --topic-list-item-background-color--visited: oklch(22% 0.02 #{$hue});
   --d-topic-list-header-background-color: oklch(22% 0.02 #{$hue});
@@ -122,10 +150,24 @@
 
   --secondary: oklch(20% 0.03 #{$hue});
   --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 45%) 0%, oklch(20% 0.03 #{$hue}) 60%);
-  --d-content-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 34%) 0%, oklch(20% 0.03 #{$hue}) 50%);
+  // --d-content-background MUST stay a flat color — see CHANGELOG v7. The
+  // actual content-area glow lives in --category-content-glow instead.
+  --d-content-background: oklch(20% 0.03 #{$hue});
+  --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 34%) 0%, oklch(20% 0.03 #{$hue}) 50%);
   --topic-list-item-background-color: oklch(20% 0.03 #{$hue});
   --topic-list-item-background-color--visited: oklch(20% 0.03 #{$hue});
   --d-topic-list-header-background-color: oklch(20% 0.03 #{$hue});
+}
+
+// ---------------------------------------------------------------------------
+// CONTENT-AREA DEPTH GLOW — see CHANGELOG v7 for why this can't just live on
+// --d-content-background. Applied once, globally, via background-image
+// (which safely accepts a gradient); it only has any visual effect on pages
+// where a category above has set --category-content-glow, so it's inert
+// everywhere else (Uncategorized, Meta, the homepage, etc.).
+// ---------------------------------------------------------------------------
+body:not(.has-full-page-chat, .wizard) #main-outlet-wrapper #main-outlet {
+  background-image: var(--category-content-glow, none);
 }
 
 // ---------------------------------------------------------------------------
