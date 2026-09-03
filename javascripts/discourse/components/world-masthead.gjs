@@ -1,7 +1,7 @@
 import Component from "@glimmer/component";
 import { on } from "@ember/modifier";
 import { openRules } from "../lib/rules-bus";
-import { roomFor, worldForCategory } from "../lib/worlds";
+import { markFor, roomFor, worldForCategory } from "../lib/worlds";
 import WorldMark from "./world-mark";
 
 /**
@@ -19,6 +19,11 @@ export default class WorldMasthead extends Component {
 
   get room() {
     return roomFor(this.args.category);
+  }
+
+  /** The category's own icon wins; worlds.js is only the fallback. */
+  get mark() {
+    return markFor(this.args.category);
   }
 
   get blurb() {
@@ -54,7 +59,7 @@ export default class WorldMasthead extends Component {
       <div
         class="ba-masthead ba-tier--{{this.world.tier}} ba-motif--{{this.world.motif}}"
       >
-        <span class="ba-medallion"><WorldMark @icon={{this.world.icon}} /></span>
+        <span class="ba-medallion"><WorldMark @icon={{this.mark}} /></span>
 
         <div class="ba-masthead__body">
           <div class="ba-kicker">

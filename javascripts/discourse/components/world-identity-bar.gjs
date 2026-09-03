@@ -1,7 +1,7 @@
 import Component from "@glimmer/component";
 import { on } from "@ember/modifier";
 import { openRules } from "../lib/rules-bus";
-import { roomFor, worldForCategory } from "../lib/worlds";
+import { markFor, roomFor, worldForCategory } from "../lib/worlds";
 import WorldMark from "./world-mark";
 
 /**
@@ -22,10 +22,14 @@ export default class WorldIdentityBar extends Component {
     return roomFor(this.category);
   }
 
+  get mark() {
+    return markFor(this.category);
+  }
+
   <template>
     {{#if this.world}}
       <div class="ba-idbar ba-tier--{{this.world.tier}}">
-        <span class="ba-idbar__mark"><WorldMark @icon={{this.world.icon}} /></span>
+        <span class="ba-idbar__mark"><WorldMark @icon={{this.mark}} /></span>
         <span class="ba-idbar__name">{{this.world.name}}</span>
         {{#if this.room}}
           <span class="ba-idbar__room">&rsaquo; {{this.room}}</span>

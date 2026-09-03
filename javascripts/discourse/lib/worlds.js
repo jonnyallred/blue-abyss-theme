@@ -9,6 +9,11 @@
  * `slug`    must match the category's Discourse slug exactly.
  * `hue`     is the OKLCH hue used by common.scss. Kept >= 30 degrees from
  *           every other world so no two rooms read as the same colour.
+ * `icon`    a Font Awesome mark, used only as a FALLBACK. The theme prefers
+ *           whatever icon the category itself carries in its Style tab, so
+ *           changing an icon in admin propagates everywhere with no deploy
+ *           and the two can never drift apart. Keep these in step anyway —
+ *           they are what renders if a category's style is set back to Square.
  * `tier`    picks the display typeface (see common.scss $tiers).
  * `recipe`  "light" = bright surface with a mid-tone accent (most worlds)
  *           "abyss" = deeper surface, brighter glow (the Abyss only)
@@ -80,7 +85,7 @@ export const WORLDS = [
   {
     slug: "law",
     name: "Law",
-    icon: "scale-balanced",
+    icon: "gavel",
     hue: 75,
     chroma: 0.13,
     hex: "#A87024",
@@ -104,7 +109,7 @@ export const WORLDS = [
   {
     slug: "commons",
     name: "Commons",
-    icon: "people-group",
+    icon: "user-group",
     hue: 200,
     chroma: 0.12,
     hex: "#1C989E",
@@ -176,6 +181,29 @@ export function worldForCategory(category) {
     c = c.parentCategory;
   }
   return c ? worldForSlug(c.slug) : null;
+}
+
+/** The top-level Category object a category belongs to. */
+export function topCategoryFor(category) {
+  let c = category;
+  let guard = 0;
+  while (c && c.parentCategory && guard++ < 8) {
+    c = c.parentCategory;
+  }
+  return c || null;
+}
+
+/**
+ * The mark to draw. The live category icon wins over the fallback in this
+ * file, so an icon changed in Admin > Category > Style shows up in the
+ * masthead, the identity bar, the overlay and the sidebar at once. Discourse
+ * registers category icons in its SVG sprite automatically; the `world_icons`
+ * theme setting covers the fallbacks and the Rules glyph, which it does not.
+ */
+export function markFor(category) {
+  const top = topCategoryFor(category);
+  const world = top ? worldForSlug(top.slug) : null;
+  return top?.icon || world?.icon || "circle";
 }
 
 /** The room within a world — a subcategory name, or null at the top level. */

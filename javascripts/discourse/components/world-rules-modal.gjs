@@ -1,6 +1,7 @@
 import Component from "@glimmer/component";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
+import { markFor } from "../lib/worlds";
 import OvertonWindow from "./overton-window";
 import WorldMark from "./world-mark";
 
@@ -28,6 +29,10 @@ export default class WorldRulesModal extends Component {
     }));
   }
 
+  get mark() {
+    return markFor(this.args.category);
+  }
+
   get charterUrl() {
     const c = this.args.category;
     return c?.topic_url || c?.url || null;
@@ -47,7 +52,7 @@ export default class WorldRulesModal extends Component {
         tabindex="-1"
       >
         <div class="ba-rules-modal__head">
-          <span class="ba-medallion"><WorldMark @icon={{@world.icon}} /></span>
+          <span class="ba-medallion"><WorldMark @icon={{this.mark}} /></span>
           <div class="ba-rules-modal__title">
             <span class="ba-kicker">Rules of this world</span>
             <span id="ba-rules-title" class="ba-rules-modal__name">

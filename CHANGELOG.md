@@ -17,6 +17,9 @@ adds identity and law on top of the v1–v8 colour work.
 - Ten CSS-gradient motifs, one per world. No image assets.
 
 **Changed**
+- Marks are read from the category itself, with `worlds.js` as the fallback,
+  so an icon changed in a category's Style tab propagates to the masthead,
+  identity bar, overlay and sidebar at once and the two can never drift.
 - Colours re-allocated around the wheel: no two worlds within 30 degrees.
   Politics (Conventional) → institutional navy; Politics (Critical) →
   vermilion; Philosophy → violet; International Affairs → cobalt. The three

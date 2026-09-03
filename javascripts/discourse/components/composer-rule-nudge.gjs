@@ -2,7 +2,7 @@ import Component from "@glimmer/component";
 import { on } from "@ember/modifier";
 import { openRules } from "../lib/rules-bus";
 import { rulesFor } from "../lib/rules";
-import { worldForCategory } from "../lib/worlds";
+import { markFor, worldForCategory } from "../lib/worlds";
 import WorldMark from "./world-mark";
 
 /**
@@ -13,6 +13,10 @@ import WorldMark from "./world-mark";
 export default class ComposerRuleNudge extends Component {
   get world() {
     return worldForCategory(this.args.model?.category);
+  }
+
+  get mark() {
+    return markFor(this.args.model?.category);
   }
 
   get rules() {
@@ -29,7 +33,7 @@ export default class ComposerRuleNudge extends Component {
   <template>
     {{#if this.rules}}
       <div class="ba-nudge ba-tier--{{this.world.tier}}">
-        <span class="ba-nudge__mark"><WorldMark @icon={{this.world.icon}} /></span>
+        <span class="ba-nudge__mark"><WorldMark @icon={{this.mark}} /></span>
         <span class="ba-nudge__text">
           In
           <b>{{this.world.name}}</b>

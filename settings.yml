@@ -5,13 +5,17 @@
 
 world_icons:
   type: string
-  default: "brain|hands-praying|earth-americas|landmark|bullhorn|scale-balanced|chart-line|people-group|water|sliders|shield-halved|book-open"
+  default: "book-open|brain|hands-praying|earth-americas|landmark|bullhorn|gavel|scale-balanced|chart-line|user-group|people-group|water|sliders|shield-halved"
   description:
     en: >
-      Every Font Awesome mark this theme draws. Discourse adds the values of
-      any setting whose name contains "_icon" to the site's SVG sprite, which
-      is the supported way for a theme to ship glyphs. Keep this in sync with
-      the icons in javascripts/discourse/lib/worlds.js. Pipe-separated.
+      Marks this theme needs in the SVG sprite. Discourse adds the values of
+      any setting whose name contains "_icon" to the sprite, which is the
+      supported way for a theme to ship glyphs — and it already registers the
+      icons categories carry, so this really only has to cover "book-open"
+      (the Rules glyph, which no category uses) and the fallbacks in
+      javascripts/discourse/lib/worlds.js. Extras are harmless: scale-balanced
+      is listed so it is available if Law ever switches from a gavel to
+      scales. Pipe-separated.
 
 enable_masthead:
   type: bool

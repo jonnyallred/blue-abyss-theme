@@ -65,15 +65,19 @@ None of this is code, and all of it matters:
 
 | | |
 |---|---|
-| **International Affairs** | has no icon and still uses the plain Square style. Set style **Icon**, icon `earth-americas`. |
-| **BlueAbyss** | icon is `square-full`, a placeholder. Set `water`. |
-| **Law** | `gavel` → `scale-balanced` (a gavel is a judge's; scales are the law's). |
-| **Commons** | `globe` → `people-group` (a globe already belongs to International Affairs). |
-| **Meta / Staff** | style **Icon**, `sliders` and `shield-halved`. |
-| **Colours** | set each category's colour to the hex in `javascripts/discourse/lib/worlds.js`. The SCSS does not read them, but the sidebar, category badges and Discourse's own chrome do. |
-| **Order** | turn on `fixed_category_positions` and order the worlds deliberately. |
-| **Uncategorized** | turn off `allow_uncategorized_topics`. A topic in no world has no rules. |
-| **Light mode** | set `interface_color_selector` to something other than `disabled`, so members can choose and both palettes are testable. |
+| ✅ **Icons and colours** | all eleven categories are on **Icon** style with their v9 colours — done 3 Sep 2026. |
+| ✅ **Order** | `fixed_category_positions` on. |
+| ✅ **Light mode** | `interface_color_selector` set to `sidebar_footer`. |
+| ⬜ **Uncategorized** | `allow_uncategorized_topics` is still on. A topic in no world has no rules. |
+
+The icons the site actually carries are `brain`, `hands-praying`, `earth-americas`,
+`landmark`, `bullhorn`, `gavel`, `chart-line`, `user-group`, `water`, `sliders`,
+`shield-halved`. Change one in a category's Style tab and it propagates
+everywhere — the theme prefers the live icon over its own fallback.
+
+One left on the table: **`scale-balanced` does exist** in this install (search
+the icon picker for `scale` or `balance`, not `scales`). Law is on `gavel`,
+which is a judge's tool; the scales are the law's. Purely your call.
 
 ---
 
