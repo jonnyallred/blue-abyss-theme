@@ -45,6 +45,22 @@ somebody saw once.
 
 ---
 
+## Rolling it out
+
+Two stages, deliberately. **Identity ships first** — masthead, identity bar,
+switcher, colours, type. The law ships second, once the charters are the
+forum's rather than a draft, because the moment the Rules button is on, that
+text reads to members as law.
+
+So `enable_rules_button`, `enable_composer_nudge` and `auto_open_rules` all
+default to **off**. Turn them on in that order, and turn `auto_open_rules` on
+last — its "seen" flag burns on first sight, so whatever a member meets first
+is what they have met. (Bumping `RULES_VERSION` in `lib/rules.js` does re-show
+every world to everyone, which is the escape hatch.)
+
+Rollback needs no git: a theme component is attached to Horizon in the admin
+UI, and detaching it removes everything instantly.
+
 ## Install / update
 
 Already installed as a remote theme from this repo:

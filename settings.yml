@@ -29,26 +29,37 @@ enable_identity_bar:
   description:
     en: "Show the sticky world bar at the top of topic pages."
 
+# ── The law: OFF until the charters are ratified ──────────────────────────
+# Identity ships first. The rule text in lib/rules.js is a draft, and the
+# moment these are on it reads to members as forum law. Turn them on — in this
+# order — once the charters have been through Meta.
+
 enable_rules_button:
   type: bool
-  default: true
+  default: false
   description:
-    en: "Show the floating Rules button, and the overlay it opens."
+    en: >
+      Show the floating Rules button, and the overlay it opens. Turn this on
+      once the charters in lib/rules.js are the forum's, not a draft.
 
 enable_composer_nudge:
   type: bool
-  default: true
+  default: false
   description:
-    en: "Show one line of the world's rules above the composer."
+    en: >
+      Show one line of the world's rules above the composer. Turn this on
+      after the Rules button, once the short forms read well.
 
 auto_open_rules:
   type: bool
-  default: true
+  default: false
   description:
     en: >
       Open a world's rules automatically the first time a member enters it —
-      once per world, per member, per rules version. Stored in the browser, so
-      a member on a second device sees each world once more there.
+      once per world, per member, per rules version. Turn this on LAST: the
+      "seen" flag burns on first sight, so a member who meets the wrong text
+      has met it. (Bumping RULES_VERSION does re-show every world.) Stored in
+      the browser, so a member on a second device sees each world once more.
 
 hide_default_categories_section:
   type: bool
