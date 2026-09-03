@@ -181,3 +181,30 @@ and much larger — the opposite of the page underneath it. It now matches:
 world first at 1rem in the world's face and accent colour, topic second at
 0.78rem. Core's wrapper already supports two rows, so this reorders inside a
 layout built for it rather than forcing a 52px bar to grow.
+
+## v9.11 — three fixes, and a duplicated stylesheet
+
+**The header punched a hole through the panel.** On a category page Discourse
+draws the nav bar and the topic list as one continuous surface —
+`.list-controls` rounds the top, `#list-area` carries the same fill down. The
+world header sat between them with no background, which is why it read as
+disconnected. It now takes the same fill and the same 1.5rem inset, so its
+content lines up with the rows below, and closes with a hairline rather than a
+gap.
+
+**Topic pages were cramped.** The world and the title were stacked with no air
+above, between or below. `1.3rem` above the world, `0.5rem` to the title,
+`1.1rem` under it.
+
+**The world name reported as rendering in the site's link blue** on every
+world rather than the world's own colour. Not reproduced: on the same deployed
+version it computes to the correct accent here, and core's
+`a, a:visited { color: var(--d-link-color) }` loses to a single class on
+specificity. Hardened anyway — `a.ba-worldhead__name` puts it out of reach of
+any element-level link rule. If it survives a hard refresh, the cause is
+somewhere else and worth chasing with the browser named.
+
+**And the cause of some of it:** v9.10's edit spliced the world-header section
+using a marker that appeared *earlier* in the file than the section it was
+replacing, so ~94 lines were duplicated and the older copy sat later in the
+cascade. Deduplicated.
