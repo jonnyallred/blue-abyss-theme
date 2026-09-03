@@ -266,7 +266,180 @@ body.ba-in-room #list-area .topic-list-item .badge-category__wrapper {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  margin-bottom: 0.9rem;
+  margin-top: 1rem;
+}
+.ba-room {
+  padding: 0.15rem 0.6rem;
+  border-radius: 11px;
+  font-size: 0.76rem;
+  text-decoration: none;
+  color: var(--primary-medium);
+  background: var(--ba-panel, var(--secondary));
+  border: 1px solid var(--primary-low);
+  &:hover {
+    color: var(--ba-accent-text);
+    border-color: var(--ba-accent-line);
+  }
+}
+
+// ── The world header ────────────────────────────────────────────────────────
+// Two densities of one idea. On a category page the world IS the page, so it
+// gets room to say so; on a topic page it is one line above the title. Flat
+// throughout: the gradient and texture that made the old masthead read as an
+// overlay are not coming back — the weight comes from scale and space.
+
+// The full block on category pages, closed with a hairline so the list below
+// starts somewhere rather than being butted against the header.
+.ba-worldblock {
+  padding: 1.7rem 0 1.15rem;
+  margin-bottom: 1.2rem;
+  border-bottom: 1px solid var(--primary-low);
+}
+
+.ba-worldhead {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 0.55rem;
+  margin: 0 0 0.35rem;
+  line-height: 1.15;
+}
+.ba-worldhead--full {
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  gap: 1.15rem;
+  margin: 0;
+}
+.ba-worldhead__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ba-worldhead__medallion {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 8px;
+  font-size: 1.6rem;
+  color: var(--ba-accent-text);
+  background: var(--ba-accent-soft);
+  border: 1px solid var(--ba-accent-line);
+}
+.ba-worldhead__mark {
+  align-self: center;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  color: var(--ba-accent-text);
+}
+
+.ba-worldhead__kicker {
+  font-family: var(--d-font-family--monospace, ui-monospace, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  color: var(--primary-medium);
+  margin-bottom: 0.3rem;
+}
+.ba-worldhead__kicker-room {
+  color: var(--ba-accent-text);
+  margin-left: 0.35em;
+}
+
+.ba-worldhead__name {
+  font-family: var(--ba-display, inherit);
+  font-weight: var(--ba-display-weight, 700);
+  letter-spacing: var(--ba-display-tracking, -0.015em);
+  font-size: 1.9rem;
+  color: var(--ba-accent-text);
+  text-decoration: none;
+  &:hover {
+    color: var(--ba-accent-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+.ba-worldhead--full .ba-worldhead__name {
+  display: block;
+  font-size: 2.35rem;
+  line-height: 1.05;
+}
+
+.ba-worldhead__blurb {
+  max-width: 62ch;
+  margin: 0.45rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--primary-medium);
+}
+.ba-worldhead__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+  margin-top: 0.8rem;
+  font-family: var(--d-font-family--monospace, ui-monospace, monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--primary-medium);
+  b {
+    color: var(--primary);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.ba-worldhead__room {
+  font-size: 1rem;
+  color: var(--primary-medium);
+  text-decoration: none;
+  &::before {
+    content: "\203A";
+    margin-right: 0.4rem;
+    opacity: 0.6;
+  }
+  &:hover {
+    color: var(--ba-accent-text);
+  }
+}
+
+.ba-worldhead__rules {
+  margin-left: auto;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.15rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 11px;
+  cursor: pointer;
+  color: var(--ba-accent-text);
+  background: transparent;
+  border: 1px solid var(--ba-accent-line);
+  &:hover {
+    background: var(--ba-accent-soft);
+  }
+}
+.ba-worldhead--full .ba-worldhead__rules {
+  align-self: flex-start;
+  margin-top: 0.35rem;
+}
+
+// Inside a room, every row of the list is from that room — so the badge on
+// each one says nothing the header above has not already said.
+body.ba-in-room #list-area .topic-list-item .badge-category__wrapper {
+  display: none;
+}
+
+// ── The rooms inside a world — Commons has 22, the Abyss 18 ──────────────
+.ba-rooms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 1rem;
 }
 .ba-room {
   padding: 0.15rem 0.6rem;
@@ -295,14 +468,6 @@ body.ba-in-room #list-area .topic-list-item .badge-category__wrapper {
   gap: 0 0.55rem;
   margin: 0 0 0.35rem;
   line-height: 1.15;
-}
-// On a category page the header is the whole banner, so it gets breathing
-// room before the list. On a topic page the title follows immediately.
-.ba-worldhead:has(+ .ba-rooms) {
-  margin-bottom: 0.5rem;
-}
-.ba-rooms + * {
-  margin-top: 0.2rem;
 }
 .ba-worldhead__mark {
   align-self: center;
@@ -386,15 +551,35 @@ body.ba-in-room #list-area .topic-list-item .badge-category__wrapper {
 
     // Discourse's own sticky header, once you scroll past the title — and the
     // only cue available on a deep link, where the title block never renders.
-    // Emphasised rather than reordered: it is a 52px bar and reflowing it is
-    // how themes break the header.
+    // Same inversion as the page: world first and larger, topic underneath.
+    // The wrapper already supports two rows, so this reorders within a layout
+    // core designed for it rather than forcing a 52px bar to grow.
     .extra-info-wrapper {
+      .title-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.05rem;
+      }
+      .categories-wrapper {
+        order: 1;
+        line-height: 1.15;
+      }
+      .header-title {
+        order: 2;
+        margin: 0;
+        line-height: 1.15;
+      }
+      .topic-header-extra {
+        order: 3;
+      }
       .categories-wrapper .badge-category__name {
+        font-family: var(--ba-display, inherit);
         font-weight: 700;
-        font-size: 0.95em;
+        font-size: 1rem;
         color: var(--ba-accent-text);
       }
       .header-title .topic-link {
+        font-size: 0.78rem;
         font-weight: 400;
         opacity: 0.85;
       }
@@ -681,8 +866,29 @@ body.ba-in-room #list-area .topic-list-item .badge-category__wrapper {
 
 // ── Mobile ──────────────────────────────────────────────────────────────────
 @media (max-width: 767px) {
+  .ba-worldblock {
+    padding: 1.15rem 0 0.9rem;
+    margin-bottom: 0.9rem;
+  }
+  .ba-worldhead--full {
+    gap: 0.8rem;
+  }
+  .ba-worldhead__medallion {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.25rem;
+  }
   .ba-worldhead__name {
     font-size: 1.45rem;
+  }
+  .ba-worldhead--full .ba-worldhead__name {
+    font-size: 1.7rem;
+  }
+  .ba-worldhead__blurb {
+    font-size: 0.88rem;
+  }
+  .ba-worldhead--full .ba-worldhead__rules {
+    margin-top: 0;
   }
   .ba-worldhead__rules {
     margin-left: 0;

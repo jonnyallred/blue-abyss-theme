@@ -36,7 +36,7 @@ export default apiInitializer((api) => {
     api.renderInOutlet(
       "discovery-above",
       <template>
-        <WorldHeader @category={{@outletArgs.category}} @showRooms={{true}} />
+        <WorldHeader @category={{@outletArgs.category}} @full={{true}} />
       </template>
     );
   }

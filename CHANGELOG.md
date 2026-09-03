@@ -160,3 +160,24 @@ And both badge rules are scoped to `#list-area`, so the suggested-topics list
 at the foot of a topic keeps its badges — there they point somewhere else and
 are worth having. Without the scope, hiding a world's badge would have
 stripped them from suggested topics too.
+
+## v9.10 — the world header gets its weight back
+
+Cutting the masthead in v9.7 removed a panel that was not earning its keep,
+and took the substance with it. On a category page the result sat pinched
+between the nav bar and the first row, one line with no air on either side —
+smaller than the page it was heading.
+
+The category header is now a proper block again: the mark in a medallion, an
+eyebrow, the world at 2.35rem, its remit, its live counts, and its rooms,
+closed with a hairline before the list. What has *not* come back is the
+gradient wash and the per-world texture — the weight comes from scale and
+whitespace instead, which is what was actually missing. Topic pages keep the
+compact single line; the two are the same component at two densities.
+
+**And the sticky header is inverted too.** v9.6 emphasised the world there but
+left core's order alone, so scrolling still put the topic name above the world
+and much larger — the opposite of the page underneath it. It now matches:
+world first at 1rem in the world's face and accent colour, topic second at
+0.78rem. Core's wrapper already supports two rows, so this reorders inside a
+layout built for it rather than forcing a 52px bar to grow.

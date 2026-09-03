@@ -1,21 +1,21 @@
 import Component from "@glimmer/component";
 import { on } from "@ember/modifier";
+import { blurbFor } from "../lib/blurb";
 import { openRules } from "../lib/rules-bus";
 import { markFor, roomFor, worldForCategory } from "../lib/worlds";
 import WorldMark from "./world-mark";
 
 /**
- * The world, named. One component, one line, both page types.
+ * The world, named. One component, two densities.
  *
- * On a category page it sits above the topic list; on a topic page above the
- * title, which then steps down to second voice. It replaced two separate
- * things in v9.7 — a bordered masthead panel with a gradient, a texture, a
- * description and counts, and a fixed translucent bar — neither of which
- * earned the space. What is left is the mark, the world in its own face and
- * accent colour, and the room.
+ * `@full` — category pages. The world is the whole reason the page exists, so
+ * it gets the room to say so: mark in a medallion, the world at 2.35rem, its
+ * remit, its live counts, and its rooms, closed with a hairline before the
+ * list starts. Flat throughout — the gradient and texture that made the old
+ * masthead read as an overlay are not coming back.
  *
- * `showRooms` adds the room chips underneath, which only category pages want:
- * on a topic page the title follows immediately.
+ * Otherwise — topic pages. One line above the title, which then steps down to
+ * second voice.
  */
 export default class WorldHeader extends Component {
   get category() {
@@ -34,9 +34,31 @@ export default class WorldHeader extends Component {
     return markFor(this.category);
   }
 
+  get blurb() {
+    return blurbFor(this.category, this.world);
+  }
+
   /** Always the world's own page, even when standing in one of its rooms. */
   get worldUrl() {
     return this.category?.parentCategory?.url || this.category?.url;
+  }
+
+  /** Containers hold no topics of their own — sum the rooms. */
+  get counts() {
+    const c = this.category;
+    if (!c) {
+      return null;
+    }
+    const kids = c.subcategories || [];
+    const topics =
+      (c.topic_count || 0) + kids.reduce((n, k) => n + (k.topic_count || 0), 0);
+    const posts =
+      (c.post_count || 0) + kids.reduce((n, k) => n + (k.post_count || 0), 0);
+    return {
+      topics: topics.toLocaleString(),
+      posts: posts.toLocaleString(),
+      rooms: kids.length,
+    };
   }
 
   /**
@@ -44,7 +66,7 @@ export default class WorldHeader extends Component {
    * still step sideways into Literature. A room has no children of its own.
    */
   get rooms() {
-    if (!this.args.showRooms) {
+    if (!this.args.full) {
       return [];
     }
     const top = this.category?.parentCategory || this.category;
@@ -59,33 +81,84 @@ export default class WorldHeader extends Component {
 
   <template>
     {{#if this.world}}
-      <div class="ba-worldhead ba-tier--{{this.world.tier}}">
-        <span class="ba-worldhead__mark"><WorldMark @icon={{this.mark}} /></span>
-        <a class="ba-worldhead__name" href={{this.worldUrl}}>
-          {{this.world.name}}
-        </a>
-        {{#if this.room}}
-          <a class="ba-worldhead__room" href={{this.category.url}}>
-            {{this.room}}
-          </a>
-        {{/if}}
-        {{#if this.showRules}}
-          <button
-            type="button"
-            class="ba-worldhead__rules"
-            {{on "click" openRules}}
-          >
-            <WorldMark @icon="book-open" />
-            Rules
-          </button>
-        {{/if}}
-      </div>
+      {{#if @full}}
+        <div class="ba-worldblock">
+          <div class="ba-worldhead ba-worldhead--full ba-tier--{{this.world.tier}}">
+            <span class="ba-worldhead__medallion">
+              <WorldMark @icon={{this.mark}} />
+            </span>
 
-      {{#if this.rooms}}
-        <div class="ba-rooms">
-          {{#each this.rooms as |room|}}
-            <a class="ba-room" href={{room.url}}>{{room.name}}</a>
-          {{/each}}
+            <div class="ba-worldhead__body">
+              <div class="ba-worldhead__kicker">
+                World
+                {{#if this.room}}
+                  <span class="ba-worldhead__kicker-room">
+                    &rsaquo;
+                    {{this.room}}
+                  </span>
+                {{/if}}
+              </div>
+
+              <a class="ba-worldhead__name" href={{this.worldUrl}}>
+                {{this.world.name}}
+              </a>
+
+              {{#if this.blurb}}
+                <p class="ba-worldhead__blurb">{{this.blurb}}</p>
+              {{/if}}
+
+              {{#if this.counts}}
+                <div class="ba-worldhead__stats">
+                  <span><b>{{this.counts.topics}}</b> topics</span>
+                  <span><b>{{this.counts.posts}}</b> posts</span>
+                  {{#if this.counts.rooms}}
+                    <span><b>{{this.counts.rooms}}</b> rooms</span>
+                  {{/if}}
+                </div>
+              {{/if}}
+            </div>
+
+            {{#if this.showRules}}
+              <button
+                type="button"
+                class="ba-worldhead__rules"
+                {{on "click" openRules}}
+              >
+                <WorldMark @icon="book-open" />
+                Rules
+              </button>
+            {{/if}}
+          </div>
+
+          {{#if this.rooms}}
+            <div class="ba-rooms">
+              {{#each this.rooms as |room|}}
+                <a class="ba-room" href={{room.url}}>{{room.name}}</a>
+              {{/each}}
+            </div>
+          {{/if}}
+        </div>
+      {{else}}
+        <div class="ba-worldhead ba-tier--{{this.world.tier}}">
+          <span class="ba-worldhead__mark"><WorldMark @icon={{this.mark}} /></span>
+          <a class="ba-worldhead__name" href={{this.worldUrl}}>
+            {{this.world.name}}
+          </a>
+          {{#if this.room}}
+            <a class="ba-worldhead__room" href={{this.category.url}}>
+              {{this.room}}
+            </a>
+          {{/if}}
+          {{#if this.showRules}}
+            <button
+              type="button"
+              class="ba-worldhead__rules"
+              {{on "click" openRules}}
+            >
+              <WorldMark @icon="book-open" />
+              Rules
+            </button>
+          {{/if}}
         </div>
       {{/if}}
     {{/if}}
