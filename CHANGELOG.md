@@ -146,3 +146,17 @@ fills, borders, the Overton band and the floating button keep the true accent.
 identical "Politics (Conventional)" badges under a heading that already says
 so. Room badges stay, because in Commons and the Abyss they name where the
 topic actually lives.
+
+## v9.9 — badges that repeat the header
+
+Walking the live site at mobile and desktop width: the header, the inversion,
+both colour modes and the room chips all behave. Two leftovers.
+
+Standing in Commons › Science, every row carried a "Science" badge under a
+header already reading **Commons › Science**. A `ba-in-room` body class, set
+alongside the world resolution, now hides badges on a room's own list.
+
+And both badge rules are scoped to `#list-area`, so the suggested-topics list
+at the foot of a topic keeps its badges — there they point somewhere else and
+are worth having. Without the scope, hiding a world's badge would have
+stripped them from suggested topics too.

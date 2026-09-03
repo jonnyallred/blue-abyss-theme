@@ -255,6 +255,12 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   letter-spacing: 0.08em;
 }
 
+// Inside a room, every row of the list is from that room — so the badge on
+// each one says nothing the header above has not already said.
+body.ba-in-room #list-area .topic-list-item .badge-category__wrapper {
+  display: none;
+}
+
 // ── The rooms inside a world — Commons has 22, the Abyss 18 ──────────────
 .ba-rooms {
   display: flex;
@@ -360,8 +366,12 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
     }
     // The world is named above the list, so every row restating it is noise —
     // 36 identical badges on Politics (Conventional). Room badges stay: in
-    // Commons and the Abyss they name where the topic actually lives.
-    .topic-list-item .badge-category__wrapper:has([data-category-id="#{$id}"]) {
+    // Commons and the Abyss they name where the topic actually lives. Scoped
+    // to #list-area so the suggested-topics list at the foot of a topic keeps
+    // its badges, where they point somewhere else and are worth having.
+    #list-area
+      .topic-list-item
+      .badge-category__wrapper:has([data-category-id="#{$id}"]) {
       display: none;
     }
 

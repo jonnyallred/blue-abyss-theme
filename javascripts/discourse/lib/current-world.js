@@ -67,6 +67,15 @@ export function resolveCurrentWorld(site) {
     }
   }
 
+  // Standing inside a room, every row of its list is from that room, so the
+  // badge on each one is noise. Guarded because this observer watches the very
+  // attribute it is writing to — `classList.toggle` with an unchanged value
+  // mutates nothing, but the check makes that explicit rather than assumed.
+  const inRoom = !!best?.parent;
+  if (document.body.classList.contains("ba-in-room") !== inRoom) {
+    document.body.classList.toggle("ba-in-room", inRoom);
+  }
+
   currentWorld.category = best?.category ?? null;
   currentWorld.parent = best?.parent ?? null;
   currentWorld.world = best
