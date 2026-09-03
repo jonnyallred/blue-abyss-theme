@@ -1,5 +1,7 @@
 import Component from "@glimmer/component";
 import { on } from "@ember/modifier";
+import { blurbFor } from "../lib/blurb";
+import { currentWorld } from "../lib/current-world";
 import { openRules } from "../lib/rules-bus";
 import { markFor, roomFor, worldForCategory } from "../lib/worlds";
 import WorldMark from "./world-mark";
@@ -27,8 +29,13 @@ export default class WorldMasthead extends Component {
   }
 
   get blurb() {
-    const own = this.args.category?.description_excerpt;
-    return own && own.length > 12 ? own : this.world?.blurb;
+    return blurbFor(this.args.category, this.world);
+  }
+
+  get showRules() {
+    return typeof settings === "undefined"
+      ? true
+      : settings.enable_rules_button;
   }
 
   /** Containers (Commons, the Abyss) hold no topics of their own — sum the rooms. */
@@ -50,8 +57,14 @@ export default class WorldMasthead extends Component {
     };
   }
 
+  /**
+   * The world's rooms, not this category's — so standing in Commons > Science
+   * you can still step sideways into Literature. A room has no children of
+   * its own, so reading them off the current category showed nothing.
+   */
   get rooms() {
-    return this.args.category?.subcategories || [];
+    const top = currentWorld.topCategory || this.args.category;
+    return top?.subcategories || [];
   }
 
   <template>
@@ -82,12 +95,14 @@ export default class WorldMasthead extends Component {
           {{/if}}
         </div>
 
-        <div class="ba-masthead__actions">
-          <button type="button" class="ba-btn" {{on "click" openRules}}>
-            <WorldMark @icon="book-open" />
-            Rules
-          </button>
-        </div>
+        {{#if this.showRules}}
+          <div class="ba-masthead__actions">
+            <button type="button" class="ba-btn" {{on "click" openRules}}>
+              <WorldMark @icon="book-open" />
+              Rules
+            </button>
+          </div>
+        {{/if}}
       </div>
 
       {{#if this.rooms}}

@@ -3,6 +3,7 @@ import ComposerRuleNudge from "../components/composer-rule-nudge";
 import WorldIdentityBar from "../components/world-identity-bar";
 import WorldMasthead from "../components/world-masthead";
 import WorldRulesLauncher from "../components/world-rules-launcher";
+import { resolveCurrentWorld } from "../lib/current-world";
 import { RULES_VERSION } from "../lib/rules";
 import { currentWorldSlug, openRules } from "../lib/rules-bus";
 import { hasSeen, markSeen } from "../lib/seen";
@@ -11,6 +12,22 @@ import { WORLDS } from "../lib/worlds";
 const s = typeof settings === "undefined" ? {} : settings;
 
 export default apiInitializer((api) => {
+  const site = api.container.lookup("service:site");
+  const router = api.container.lookup("service:router");
+
+  // ── Where am I ──────────────────────────────────────────────────────────
+  // Resolved from the body class on every route change. Twice per change:
+  // once immediately, once after a frame, because the class is written during
+  // the transition and the first read can land just before it.
+  const refresh = () => {
+    resolveCurrentWorld(site, router?.currentRouteName);
+    window.requestAnimationFrame(() =>
+      resolveCurrentWorld(site, router?.currentRouteName)
+    );
+  };
+  api.onPageChange(refresh);
+  refresh();
+
   // ── Identity ────────────────────────────────────────────────────────────
   // `discovery-above` hands us the category on every list page (and null on
   // /latest, /new and friends, where the components render nothing).
@@ -23,32 +40,19 @@ export default apiInitializer((api) => {
     );
   }
 
-  // `topic-above-post-stream` hands us the topic; the bar reads its category.
+  // The identity bar and the rules launcher mount from the GLOBAL outlet and
+  // read the world from the body class, because core wraps the topic-page
+  // outlets in {{#unless shouldHideScrollableContentAbove}} — deep-link to
+  // /t/<slug>/<id>/1512 and they never render, which is exactly the case the
+  // identity bar exists for. See lib/current-world.js.
   if (s.enable_identity_bar !== false) {
-    api.renderInOutlet(
-      "topic-above-post-stream",
-      <template>
-        <WorldIdentityBar @topic={{@outletArgs.model}} />
-      </template>
-    );
+    api.renderInOutlet("above-main-container", WorldIdentityBar);
   }
 
   // ── The law ─────────────────────────────────────────────────────────────
-  // The launcher is position:fixed, so mounting it from either outlet puts it
-  // in the same corner. Exactly one is ever on screen.
+  // Mounted once, globally, position:fixed — same reason as the identity bar.
   if (s.enable_rules_button !== false) {
-    api.renderInOutlet(
-      "discovery-above",
-      <template>
-        <WorldRulesLauncher @category={{@outletArgs.category}} />
-      </template>
-    );
-    api.renderInOutlet(
-      "topic-above-post-stream",
-      <template>
-        <WorldRulesLauncher @category={{@outletArgs.model.category}} />
-      </template>
-    );
+    api.renderInOutlet("above-main-container", WorldRulesLauncher);
   }
 
   if (s.enable_composer_nudge !== false) {
@@ -86,8 +90,6 @@ export default apiInitializer((api) => {
   // The eleven worlds, always in the same order, with the mark and colour each
   // category already carries. Discourse's own "Categories" section is left
   // alone unless `hide_default_categories_section` is on.
-  const site = api.container.lookup("service:site");
-
   api.addSidebarSection((BaseCustomSidebarSection, BaseCustomSidebarSectionLink) => {
     return class WorldsSection extends BaseCustomSidebarSection {
       get name() {

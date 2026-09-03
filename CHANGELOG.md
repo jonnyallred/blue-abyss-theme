@@ -40,3 +40,35 @@ adds identity and law on top of the v1–v8 colour work.
 Per-category accents and background wash. See the header comment in
 `common/common.scss` for the full history — the v3, v7 and v8 findings are
 still load-bearing and are documented there.
+
+## v9.4 — two bugs live testing found
+
+**Fixed: the identity bar never appeared where it matters.** It was mounted at
+`topic-above-post-stream`, and core wraps that outlet in
+`{{#unless @controller.shouldHideScrollableContentAbove}}`. Deep-link into the
+middle of a topic — `/t/coronavirus/1802/1512` — and it does not render at
+all, which is precisely the case the bar exists for. The bar and the rules
+launcher now mount from the global `above-main-container` outlet and resolve
+the world from the body class (`lib/current-world.js`), which is present on
+every route. The bar is fixed rather than sticky and ships its own in-flow
+spacer, so nothing else needs padding.
+
+**Fixed: `interface_color_selector` re-armed the v8 invisible-text bug.**
+Choosing Light or Dark flips the two palette stylesheets' `media` attributes to
+`all` / `none` and stamps nothing on the document, so a member on a dark OS who
+picks Light got Royal Light's palette while every
+`@media (prefers-color-scheme: dark)` rule in this file still matched — dark
+wash under dark text. Every mode-dependent value is now a single
+`light-dark(light, dark)` pair, which resolves against the palette actually
+applied. Correct under the OS setting and under the toggle, and 12% less CSS.
+
+**Also**
+- Masthead blurb: entities decoded (`Technology &amp; Internet Culture`), first
+  sentence only, falling back to `worlds.js` for the four categories with no
+  description. Category descriptions here carry admin notes members don't need.
+- Rooms in the masthead come from the world, not the current category, so
+  standing in Commons › Science you can step sideways into Literature.
+- The Rules buttons in the masthead and identity bar are gated on
+  `enable_rules_button` — they were rendering, and doing nothing, with the law
+  switched off.
+- Identity bar trimmed from 53px to 36px.

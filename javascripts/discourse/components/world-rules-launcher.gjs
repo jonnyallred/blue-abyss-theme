@@ -2,6 +2,7 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { on } from "@ember/modifier";
 import { action } from "@ember/object";
+import { currentWorld } from "../lib/current-world";
 import { clearLauncher, registerLauncher } from "../lib/rules-bus";
 import { rulesFor } from "../lib/rules";
 import { worldForCategory } from "../lib/worlds";
@@ -11,10 +12,11 @@ import WorldRulesModal from "./world-rules-modal";
 /**
  * The floating Rules button, and the overlay it owns.
  *
- * Rendered from `discovery-above` (category pages) and `topic-above-post-stream`
- * (topic pages), both of which hand us a category. It is position:fixed, so it
- * sits in the same place wherever it is mounted — which is how it survives
- * reply 3,000 of a megathread. On pages with no world it renders nothing.
+ * Mounted once from the global `above-main-container` outlet and positioned
+ * fixed, so it is present on every route a world covers — including a deep
+ * link into the middle of a megathread, where the topic-page outlets do not
+ * render at all (see lib/current-world.js). On pages with no world it renders
+ * nothing.
  */
 export default class WorldRulesLauncher extends Component {
   @tracked isOpen = false;
@@ -43,8 +45,12 @@ export default class WorldRulesLauncher extends Component {
     document.removeEventListener("keydown", this._onKeydown, true);
   }
 
+  get category() {
+    return this.args.category ?? currentWorld.category;
+  }
+
   get world() {
-    return worldForCategory(this.args.category);
+    return worldForCategory(this.category);
   }
 
   get rules() {
@@ -101,7 +107,7 @@ export default class WorldRulesLauncher extends Component {
         <WorldRulesModal
           @world={{this.world}}
           @rules={{this.rules}}
-          @category={{@category}}
+          @category={{this.category}}
           @onClose={{this.close}}
         />
       {{/if}}
