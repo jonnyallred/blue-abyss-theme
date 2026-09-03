@@ -75,9 +75,20 @@ The icons the site actually carries are `brain`, `hands-praying`, `earth-america
 `shield-halved`. Change one in a category's Style tab and it propagates
 everywhere — the theme prefers the live icon over its own fallback.
 
-One left on the table: **`scale-balanced` does exist** in this install (search
-the icon picker for `scale` or `balance`, not `scales`). Law is on `gavel`,
-which is a judge's tool; the scales are the law's. Purely your call.
+### If you ever want scales on Law
+
+A gavel is a judge's tool; the scales are the law's. But **the category icon
+picker only offers icons already in the site's SVG sprite** — it queries
+`/svg-sprite/picker-search?only_available=true` — and `scale-balanced` is not
+in it, so searching the picker finds nothing however you spell it. The glyph
+is on the server; it just has not been requested.
+
+To get it: **Admin → Settings → `svg_icon_subset`**, append `|scale-balanced`,
+save, reload. The picker will then offer it and Law can switch. The same is
+true of any Font Awesome glyph this site has not used before.
+
+(This theme's `world_icons` setting registers marks the same way — that is how
+`book-open`, the Rules glyph, gets into the sprite on install.)
 
 ---
 
