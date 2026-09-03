@@ -1,0 +1,16 @@
+en:
+  theme_metadata:
+    description: >-
+      Turns each top-level category into a world with its own mark, colour,
+      typeface and posted rules — a masthead, a sidebar switcher, and a rules
+      overlay built around the category's Overton window.
+    settings:
+      world_icons: "Font Awesome marks to register in the SVG sprite."
+      enable_masthead: "World banner on category pages."
+      enable_identity_bar: "Sticky world bar on topic pages."
+      enable_rules_button: "Floating Rules button and overlay."
+      enable_composer_nudge: "One-line rule reminder above the composer."
+      auto_open_rules: "Open a world's rules the first time a member enters it."
+      hide_default_categories_section: "Hide Discourse's own Categories sidebar section."
+      switcher_heading: "Heading for the Worlds sidebar section."
+      rules_override: "JSON overriding the committed rule text, by category slug."

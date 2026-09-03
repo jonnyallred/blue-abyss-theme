@@ -1,358 +1,734 @@
 // ============================================================================
-// Blue Abyss — World & Category Accents  (v8 — light/dark mode support)
+// Blue Abyss — Worlds  (v9)
 // ============================================================================
-// A Discourse THEME COMPONENT (not a full theme) — installed under
-// Admin > Customize > Themes > Install > "From a git repository", then
-// added as a component on top of the active theme.
+// A Discourse THEME COMPONENT sitting on top of Horizon.
 //
-// WHAT THIS DOES
-// Discourse adds a `category-<slug>` class to <body> whenever you're viewing
-// a category or a topic inside one. This component overrides Discourse's own
-// color-scheme CSS variables scoped to each category's body class — accent
-// variables (--tertiary, --tertiary-low, --header_background, --header_primary)
-// plus, since v5, the surface/background variables (--secondary,
-// --d-sidebar-background, --d-content-background, --category-content-glow,
-// --topic-list-item-background-color(--visited), --d-topic-list-header-
-// background-color). All of these are part of Discourse's own public, stable
-// theming API — the safest hook available — rather than guessing at internal
-// component class names that change across versions.
-//
-// EFFECT: links, "new"/unread indicators, selected states, the header text,
-// AND the page background (sidebar, content gaps, topic-list rows) pick up
-// each category's color while you're browsing it or a topic inside it. It
-// does NOT touch layout.
-//
-// LIGHT MODE AND DARK MODE (see CHANGELOG v8)
-// This site has no manual light/dark toggle — Discourse picks a palette
-// purely from the browser/OS's `prefers-color-scheme`, compiling each
-// palette (e.g. "Royal" / "Royal Dark") into its own stylesheet and loading
-// both via `<link media="(prefers-color-scheme: light|dark)">`, so only one
-// is ever actually applied. Through v7 this component's overrides were
-// UNCONDITIONAL literal colors, tuned only for the dark palette — fine in
-// dark mode, but in light mode they forced a dark wash underneath native
-// Royal Light text (itself dark, tuned for a light background), which is how
-// topic titles ended up rendering invisible. As of v8, every surface/wash
-// property below (and --header_primary) is wrapped in its own
-// `@media (prefers-color-scheme: ...)` block with a value tuned for that
-// mode. --tertiary/--tertiary-low (the accent color itself) stay
-// unconditional — this matches Discourse's own convention (confirmed by
-// diffing Royal's light vs dark `:root` blocks): the accent hue stays put
-// across modes, only surface/text roles swap.
-//
-// TWO "RECIPES"
-// Academy and Commons use a light recipe FOR THE HEADER: a near-white header
-// background (97% lightness) with dark text and a mid-tone accent — a bright
-// strip up top. The Abyss uses a dark recipe instead: a dark header (16%
-// lightness) with bright text and a saturated, brighter accent — "dark mode
-// within light mode," meant to feel like a bioluminescent inner sanctum.
-// NOTE (found in v8, see CHANGELOG): --header_background turns out to be
-// inert under the active theme (Horizon) — it paints `.d-header` from a
-// different, non-category variable instead (see CHANGELOG v8) — so this
-// light/dark header distinction has never actually been visible; it's left
-// in place as harmless, correct-per-the-API code, flagged here rather than
-// silently removed. --header_primary (the paired text/icon color) IS real,
-// and as of v8 follows the page's actual light/dark mode rather than the
-// category's recipe, since the real header background does the same. Within
-// each recipe, hue is what gives an individual category or world its own
-// identity — the same hue drives the accent and the background wash, so a
-// room's colors read as one palette in both light and dark mode.
+// v1-v8 of this file coloured each category. v9 keeps that colour work — the
+// same Discourse variables, the same light/dark discipline — and adds the
+// three things colour alone could never do: a masthead that names the world,
+// a bar that keeps naming it inside a 3,000-post topic, and a rules overlay.
 //
 // ----------------------------------------------------------------------------
-// CHANGELOG
+// WHAT CARRIES OVER FROM v1-v8 (and must not be undone)
 // ----------------------------------------------------------------------------
-// v1: initial per-category hues for the five pre-restructure Commons-precursor
-//     categories (Informative, Daily life, Arts, Technology & Internet
-//     Culture, Predictions), plus the Academy and Abyss blocks.
-// v2: Commons absorbed those five as direct subcategories, plus the 19
-//     categories that used to be grandchildren under them — 24 subcategories
-//     total, given one shared accent instead of five. Every subcategory
-//     selector was written BOTH as a bare slug and a compound
-//     (category-<parent-slug>-<slug>) slug, since which form Discourse
-//     actually renders for a nested category was unverified.
-// v3: verified live on blueabyss.group (logged in as admin) — Discourse
-//     renders ONLY the compound form for every subcategory, never the bare
-//     form; top-level categories render only the bare form. Confirmed by
-//     checking document.body.className directly on /c/commons/linguistics
-//     (→ category-commons-linguistics), /c/philosophy (→ category-philosophy),
-//     and /c/blue-abyss/philosophy (→ category-blue-abyss-philosophy, correctly
-//     picking up the Abyss accent rather than colliding with Academy's
-//     Philosophy). All unused bare-slug selectors for subcategories removed.
-// v4: the Abyss's 14 subcategories each get their own hue now, the same way
-//     Academy's 6 top-level categories do, instead of sharing one accent.
-//     They keep the Abyss's dark recipe (bright glow on a dark header) so the
-//     world as a whole still reads as visually distinct from Academy/Commons —
-//     only the hue varies room to room now, evenly spaced around the wheel.
-//     The top-level BlueAbyss page keeps the original single accent (hue 195)
-//     as its own "base" identity. Commons is unchanged: still one shared
-//     accent across all 24 subcategories, since that world is meant to read
-//     as one place rather than many distinct rooms.
-// v5: added a background wash + depth glow, tested live before committing to
-//     the approach. Confirmed empirically (via document.body.style overrides
-//     on the live site) that --secondary only reaches minor elements
-//     (breadcrumb pills, tag badges) — the actual page surfaces are painted
-//     by separate design-token variables (--d-content-background, --d-sidebar-
-//     background, --topic-list-item-background-color(--visited), --d-topic-
-//     list-header-background-color) that Discourse bakes per color palette.
-//     Believed at the time that --d-content-background also accepted
-//     gradients safely on large singular elements — turned out to be wrong,
-//     see v7. Flat tinted color used on the per-row surfaces and --secondary,
-//     since a gradient there tiles into an ugly repeating stripe rather than
-//     one smooth page-level effect. Site's native background (#1a1a1a) is
-//     oklch(21.78% 0 —); the wash keeps roughly that lightness so untouched
-//     pages (Uncategorized, etc.) don't look mismatched.
-// v6: bumped the glow opacity after live testing showed v5's numbers (20-28%
-//     top alpha) were nearly invisible on the sidebar specifically — legible
-//     on the content backdrop, but washed out next to the sidebar's colorful
-//     icons and the blue "New Topic" button. Confirmed the rendering pipeline
-//     itself was fine (an 80% test value was clearly visible) before settling
-//     on a middle value: sidebar/content glow raised to 32%/25% (Academy,
-//     Commons) and 45%/34% (Abyss) top alpha. Verified live on both a
-//     light-header (Commons) and dark-header (Abyss/Ethics) page.
-// v7: fixed a real bug, reported as "the Ctrl+F/search-icon dropdown results
-//     are transparent and hard to read." Root cause: Horizon (the active
-//     theme) reads --d-content-background as a plain `background-color` in
-//     far more places than just the content backdrop — the search dropdown
-//     panel, the tag/category "select-kit" pickers, the markdown editor's
-//     textarea and preview, onebox/link-preview embeds, several admin pages,
-//     the full search page's header/filters, and the #main-outlet wrapper
-//     that holds the entire page's content. A gradient is an invalid value
-//     for `background-color` (only `background`/`background-image` accept
-//     one), so every one of those surfaces was silently computing to fully
-//     transparent — not just the one dropdown that got noticed. Root-caused
-//     by enumerating every CSS rule across all loaded stylesheets that
-//     references --d-content-background via the CSSOM (not just visual
-//     inspection) and checking which property actually consumed it, then
-//     confirming live that #main-outlet itself was ALSO transparent (the
-//     apparent "content glow" seen in v6 testing was really just the flat
-//     tinted topic-list rows sitting next to each other, not an actual
-//     gradient on the content area). Fixed by splitting the two roles that
-//     had been sharing one variable: --d-content-background goes back to
-//     being a flat color (the same tone as the topic-list tint), so every
-//     one of Horizon's own consumers renders correctly again; the gradient
-//     moves to a new --category-content-glow variable, applied to the real
-//     content backdrop (#main-outlet) via `background-image`, which safely
-//     accepts a gradient and has nothing else relying on it. Confirmed via
-//     the CSSOM that --d-sidebar-background was NOT part of this bug —
-//     Horizon already consumes it correctly via `background-image` — so the
-//     sidebar's glow is untouched by this fix.
-// v8: fixed a real bug, reported as "the changes only work in dark mode."
-//     Root cause: this site has no manual light/dark toggle — Discourse
-//     switches palettes purely off the browser/OS's `prefers-color-scheme`,
-//     via two separately `media`-gated stylesheet <link> tags (one per
-//     compiled palette). Every surface override in this file (--secondary,
-//     --d-sidebar-background, --d-content-background, --category-content-
-//     glow, the topic-list variables) was an unconditional dark-toned literal
-//     color, so it got force-applied even when the browser resolved to the
-//     LIGHT palette, sitting underneath Royal Light's native dark text —
-//     dark-on-dark, which is why some topic titles were fully invisible in
-//     light mode, not just "off-brand." Reproduced by forcing this session's
-//     browser pane into light mode (setting the light/dark <link> elements'
-//     `.media` directly via JS, since real OS-level `prefers-color-scheme`
-//     can't be toggled from page JS) and screenshotting an Abyss and an
-//     Academy/Commons category — both showed the dark wash clashing with
-//     native light-mode text and chrome. Fixed by wrapping every
-//     surface/wash property in each mixin in its own
-//     `@media (prefers-color-scheme: dark)` / `(prefers-color-scheme: light)`
-//     block, with a new pale/near-white-toned palette designed for light mode
-//     (mirroring the dark recipe's structure: a hue-tinted glow at the top
-//     fading to a near-white base, instead of fading to near-black) —
-//     validated live using the same forced-<link>-media technique before
-//     committing. --tertiary/--tertiary-low are left unconditional, matching
-//     Discourse's own convention (confirmed by diffing Royal light vs. Royal
-//     dark's native `:root` blocks: the accent hue is identical between the
-//     two, only surface/text roles swap).
-//        While investigating why --header_background's light/dark split
-//     wasn't visibly changing the header bar's color, found — via the same
-//     CSSOM-enumeration technique as v7 — that Horizon paints `.d-header`'s
-//     actual background from a completely different, html-scoped variable,
-//     --background-color, itself a `light-dark()` function of the SITE-WIDE
-//     global tertiary color (independent of category). This means
-//     --header_background has likely never painted the header bar in this
-//     component's lifetime, in either mode — a pre-existing, harmless
-//     dead-code issue, left in place rather than silently deleted since it's
-//     still correct per Discourse's documented API surface. --header_primary
-//     (the paired icon/link-color variable), by contrast, IS genuinely
-//     consumed by Horizon in many places (header icons, topic-title link
-//     color, badges, the language switcher, the sidebar toggle) — and since
-//     the REAL header background flips with `prefers-color-scheme` (light in
-//     light mode, dark in dark mode) for every category regardless of
-//     recipe, --header_primary now follows the page's actual mode rather
-//     than the category's light-header/dark-header recipe: dark text in
-//     light mode, light text in dark mode, for both mixins. This also fixes
-//     a second, previously-unnoticed instance of the same invisible-text bug
-//     that v8 was reported for: Academy/Commons categories were forcing dark
-//     header text unconditionally, which was invisible against the real
-//     header bar in DARK mode (its "light recipe" header background never
-//     actually applied, so in dark mode the true header bar is dark too).
+// v3: Discourse renders `category-<slug>` for a top-level category and
+//     `category-<parent>-<child>` for a subcategory — never the bare child
+//     slug. v9 uses `[class*="category-<slug>"]`, which catches a world and
+//     every room inside it in one selector, so new subcategories need no CSS.
+// v7: `--d-content-background` MUST stay a flat colour. Horizon feeds it to
+//     `background-color` in a dozen places (search dropdown, select-kit
+//     pickers, the composer, oneboxes, #main-outlet itself) and a gradient is
+//     an invalid value there, computing to transparent. The page-level glow
+//     lives in `--category-content-glow`, applied via `background-image`.
+// v8: this site has no colour toggle — Discourse picks a palette purely from
+//     `prefers-color-scheme`. Every surface value therefore lives inside a
+//     media block. Accent hue stays constant across modes, matching
+//     Discourse's own convention. `--header_background` is inert under
+//     Horizon (it paints .d-header from an html-scoped `--background-color`),
+//     so v9 drops it rather than keeping dead code; the masthead does that
+//     job now, visibly.
+//
+// ----------------------------------------------------------------------------
+// v9 DECISIONS
+// ----------------------------------------------------------------------------
+// - Colours re-allocated around the wheel: no two worlds within 30 degrees.
+//   Politics (Conventional) is institutional navy and Politics (Critical) is
+//   vermilion — the loud one is the dissenting one.
+// - The Abyss and Commons are each ONE colour across all their rooms. The
+//   Abyss looked that way in the old forum and should keep looking that way;
+//   v4's per-room hues are retired.
+// - Meta and Staff are deliberately colourless: graphite and monospace, so
+//   stepping into them reads as stepping behind the scenes.
+// - Three display tiers plus the Abyss's own, applied to world names and
+//   topic titles only. Body copy is one face everywhere, always.
 // ============================================================================
 
-// Light-header recipe — Academy and Commons.
-@mixin category-accent($hue, $chroma: 0.14, $lightness: 58%) {
+// ── The worlds ──────────────────────────────────────────────────────────────
+// slug, hue, chroma, lightness, recipe. One row per world; adding a world is
+// adding a row here and an entry in javascripts/discourse/lib/worlds.js.
+$worlds:
+  ("philosophy" 285 0.14 58% light),
+  ("religious-studies" 325 0.13 58% light),
+  ("international-politics" 255 0.14 58% light),
+  ("mainstream-politics" 250 0.08 52% light),
+  ("politics-critical" 35 0.18 58% light),
+  ("law" 75 0.13 58% light),
+  ("economics" 160 0.14 58% light),
+  ("commons" 200 0.12 58% light),
+  ("blue-abyss" 205 0.15 70% abyss),
+  ("meta" 250 0.012 55% system),
+  ("staff" 80 0.03 55% system);
+
+@mixin world-tokens($hue, $chroma, $lightness, $recipe) {
+  // The accent is mode-independent, as in Discourse's own palettes.
   --tertiary: oklch(#{$lightness} #{$chroma} #{$hue});
   --tertiary-low: oklch(#{$lightness} #{$chroma} #{$hue} / 10%);
-  // Inert under the active theme (Horizon) — see CHANGELOG v8. Left as-is:
-  // harmless, and correct per Discourse's documented theming API.
-  --header_background: oklch(97% 0.01 #{$hue});
+  --ba-accent: oklch(#{$lightness} #{$chroma} #{$hue});
+  --ba-accent-soft: oklch(#{$lightness} #{$chroma} #{$hue} / 16%);
+  --ba-accent-line: oklch(#{$lightness} #{$chroma} #{$hue} / 42%);
 
-  // --header_primary + the background wash are TUNED PER COLOR-SCHEME as of
-  // v8 — see CHANGELOG v8 for why. --d-content-background MUST stay a flat
-  // color in both modes — see CHANGELOG v7 — the content-area glow lives in
-  // --category-content-glow instead.
-  @media (prefers-color-scheme: light) {
-    --header_primary: oklch(22% #{$chroma} #{$hue});
-    --secondary: oklch(97% 0.015 #{$hue});
-    --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 30%) 0%, oklch(97% 0.015 #{$hue}) 55%);
-    --d-content-background: oklch(97% 0.015 #{$hue});
-    --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 22%) 0%, oklch(97% 0.015 #{$hue}) 45%);
-    --topic-list-item-background-color: oklch(97% 0.015 #{$hue});
-    --topic-list-item-background-color--visited: oklch(95.5% 0.015 #{$hue});
-    --d-topic-list-header-background-color: oklch(97% 0.015 #{$hue});
-  }
-
-  @media (prefers-color-scheme: dark) {
-    --header_primary: oklch(92% #{$chroma} #{$hue});
-    --secondary: oklch(22% 0.02 #{$hue});
-    --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 32%) 0%, oklch(22% 0.02 #{$hue}) 55%);
-    --d-content-background: oklch(22% 0.02 #{$hue});
-    --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 25%) 0%, oklch(22% 0.02 #{$hue}) 45%);
-    --topic-list-item-background-color: oklch(22% 0.02 #{$hue});
-    --topic-list-item-background-color--visited: oklch(22% 0.02 #{$hue});
-    --d-topic-list-header-background-color: oklch(22% 0.02 #{$hue});
+  @if $recipe == abyss {
+    // Deeper ground, stronger glow. The inner sanctum.
+    @media (prefers-color-scheme: light) {
+      --header_primary: oklch(24% #{$chroma} #{$hue});
+      --secondary: oklch(97% 0.02 #{$hue});
+      --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 35%) 0%, oklch(97% 0.02 #{$hue}) 55%);
+      --d-content-background: oklch(97% 0.02 #{$hue});
+      --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 26%) 0%, oklch(97% 0.02 #{$hue}) 45%);
+      --topic-list-item-background-color: oklch(97% 0.02 #{$hue});
+      --topic-list-item-background-color--visited: oklch(95.5% 0.02 #{$hue});
+      --d-topic-list-header-background-color: oklch(97% 0.02 #{$hue});
+      --ba-panel: oklch(99% 0.012 #{$hue});
+    }
+    @media (prefers-color-scheme: dark) {
+      --header_primary: oklch(92% #{$chroma} #{$hue});
+      --secondary: oklch(20% 0.03 #{$hue});
+      --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 45%) 0%, oklch(20% 0.03 #{$hue}) 60%);
+      --d-content-background: oklch(20% 0.03 #{$hue});
+      --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 34%) 0%, oklch(20% 0.03 #{$hue}) 50%);
+      --topic-list-item-background-color: oklch(20% 0.03 #{$hue});
+      --topic-list-item-background-color--visited: oklch(20% 0.03 #{$hue});
+      --d-topic-list-header-background-color: oklch(20% 0.03 #{$hue});
+      --ba-panel: oklch(24% 0.035 #{$hue});
+    }
+  } @else {
+    @media (prefers-color-scheme: light) {
+      --header_primary: oklch(22% #{$chroma} #{$hue});
+      --secondary: oklch(97% 0.015 #{$hue});
+      --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 30%) 0%, oklch(97% 0.015 #{$hue}) 55%);
+      --d-content-background: oklch(97% 0.015 #{$hue});
+      --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 22%) 0%, oklch(97% 0.015 #{$hue}) 45%);
+      --topic-list-item-background-color: oklch(97% 0.015 #{$hue});
+      --topic-list-item-background-color--visited: oklch(95.5% 0.015 #{$hue});
+      --d-topic-list-header-background-color: oklch(97% 0.015 #{$hue});
+      --ba-panel: oklch(99.2% 0.008 #{$hue});
+    }
+    @media (prefers-color-scheme: dark) {
+      --header_primary: oklch(92% #{$chroma} #{$hue});
+      --secondary: oklch(22% 0.02 #{$hue});
+      --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 32%) 0%, oklch(22% 0.02 #{$hue}) 55%);
+      --d-content-background: oklch(22% 0.02 #{$hue});
+      --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 25%) 0%, oklch(22% 0.02 #{$hue}) 45%);
+      --topic-list-item-background-color: oklch(22% 0.02 #{$hue});
+      --topic-list-item-background-color--visited: oklch(22% 0.02 #{$hue});
+      --d-topic-list-header-background-color: oklch(22% 0.02 #{$hue});
+      --ba-panel: oklch(26% 0.025 #{$hue});
+    }
   }
 }
 
-// Dark/glow recipe — the Abyss. Slightly deeper baseline (20% vs 22%) and a
-// stronger glow, so the Abyss reads a shade darker and more luminous than
-// Academy/Commons — its "inner sanctum" feel, now carried into the background.
-@mixin abyss-category-accent($hue, $chroma: 0.15, $lightness: 70%) {
-  --tertiary: oklch(#{$lightness} #{$chroma} #{$hue});
-  --tertiary-low: oklch(#{$lightness} #{$chroma} #{$hue} / 10%);
-  // Inert under the active theme (Horizon) — see CHANGELOG v8. Left as-is:
-  // harmless, and correct per Discourse's documented theming API.
-  --header_background: oklch(16% 0.03 #{$hue});
-
-  // --header_primary + the background wash are TUNED PER COLOR-SCHEME as of
-  // v8 — see CHANGELOG v8 for why. --d-content-background MUST stay a flat
-  // color in both modes — see CHANGELOG v7 — the content-area glow lives in
-  // --category-content-glow instead.
-  @media (prefers-color-scheme: light) {
-    --header_primary: oklch(24% #{$chroma} #{$hue});
-    --secondary: oklch(97% 0.02 #{$hue});
-    --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 35%) 0%, oklch(97% 0.02 #{$hue}) 55%);
-    --d-content-background: oklch(97% 0.02 #{$hue});
-    --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 26%) 0%, oklch(97% 0.02 #{$hue}) 45%);
-    --topic-list-item-background-color: oklch(97% 0.02 #{$hue});
-    --topic-list-item-background-color--visited: oklch(95.5% 0.02 #{$hue});
-    --d-topic-list-header-background-color: oklch(97% 0.02 #{$hue});
-  }
-
-  @media (prefers-color-scheme: dark) {
-    --header_primary: oklch(92% #{$chroma} #{$hue});
-    --secondary: oklch(20% 0.03 #{$hue});
-    --d-sidebar-background: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 45%) 0%, oklch(20% 0.03 #{$hue}) 60%);
-    --d-content-background: oklch(20% 0.03 #{$hue});
-    --category-content-glow: linear-gradient(180deg, oklch(#{$lightness} #{$chroma} #{$hue} / 34%) 0%, oklch(20% 0.03 #{$hue}) 50%);
-    --topic-list-item-background-color: oklch(20% 0.03 #{$hue});
-    --topic-list-item-background-color--visited: oklch(20% 0.03 #{$hue});
-    --d-topic-list-header-background-color: oklch(20% 0.03 #{$hue});
+@each $slug, $hue, $chroma, $lightness, $recipe in $worlds {
+  // Matches the world and every room inside it — see CHANGELOG v3/v9.
+  body[class*="category-#{$slug}"] {
+    @include world-tokens($hue, $chroma, $lightness, $recipe);
   }
 }
 
-// ---------------------------------------------------------------------------
-// CONTENT-AREA DEPTH GLOW — see CHANGELOG v7 for why this can't just live on
-// --d-content-background. Applied once, globally, via background-image
-// (which safely accepts a gradient); it only has any visual effect on pages
-// where a category above has set --category-content-glow, so it's inert
-// everywhere else (Uncategorized, Meta, the homepage, etc.).
-// ---------------------------------------------------------------------------
+// The page-level glow. Inert anywhere no world has set the variable.
 body:not(.has-full-page-chat, .wizard) #main-outlet-wrapper #main-outlet {
   background-image: var(--category-content-glow, none);
 }
 
-// ---------------------------------------------------------------------------
-// THE ACADEMY — six top-level categories, same chroma/lightness "family,"
-// hue is the only thing that varies, so they read as siblings. Politics
-// (Conventional) runs a touch darker/more saturated — it's the busiest
-// room on the forum. Matches the Style-tab colors set on each category.
-// Top-level categories render only the bare `category-<slug>` class.
-// ---------------------------------------------------------------------------
-body.category-philosophy          { @include category-accent(265); }          // Philosophy — #5176CD
-body.category-religious-studies   { @include category-accent(320, 0.13); }    // Religious Studies — #9C5EAA
-body.category-economics           { @include category-accent(165); }          // Economics — #009365
-body.category-law                 { @include category-accent(55, 0.13); }     // Law — #B3621E
-body.category-mainstream-politics { @include category-accent(35, 0.19, 52%); } // Politics (Conventional) — #BD2900
-body.category-politics-critical   { @include category-accent(300, 0.13); }    // Politics (Critical) — #8766BB
+// ── Type tiers ──────────────────────────────────────────────────────────────
+// Three tiers plus the Abyss's own, applied to world names and topic titles
+// only. Commons is deliberately set in the site's own face — "come as you
+// are" is the point of Commons. Meta and Staff go monospace.
+$tier-academic: "Newsreader", Georgia, "Times New Roman", serif;
+$tier-civic: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+$tier-abyss: "Fraunces", Georgia, "Iowan Old Style", serif;
+$tier-system: ui-monospace, "IBM Plex Mono", SFMono-Regular, Menlo, monospace;
 
-// ---------------------------------------------------------------------------
-// THE COMMONS — one shared accent (same hue family as the Commons category's
-// own teal, #1C989E) applied to Commons itself and every one of its 24
-// subcategories, so the whole world reads as one place no matter which
-// room you're in.
-//
-// Commons itself is top-level (bare class). Every subcategory below is
-// nested, so Discourse only ever renders its compound
-// `category-commons-<slug>` class — confirmed live, see CHANGELOG v3.
-// ---------------------------------------------------------------------------
-$commons-hue: 200;
-$commons-chroma: 0.12;
-$commons-lightness: 58%;
+$tiered:
+  ("philosophy" academic),
+  ("religious-studies" academic),
+  ("law" academic),
+  ("economics" academic),
+  ("international-politics" civic),
+  ("mainstream-politics" civic),
+  ("politics-critical" civic),
+  ("blue-abyss" abyss),
+  ("meta" system),
+  ("staff" system);
 
-body.category-commons,
-body.category-commons-informative,
-body.category-commons-daily-life,
-body.category-commons-arts,
-body.category-commons-technology-amp-internet-culture,
-body.category-commons-predictions,
-body.category-commons-linguistics,
-body.category-commons-programming,
-body.category-commons-math,
-body.category-commons-history,
-body.category-commons-science,
-body.category-commons-sociology,
-body.category-commons-today-i-learned,
-body.category-commons-psychology,
-body.category-commons-technology,
-body.category-commons-editorials,
-body.category-commons-media,
-body.category-commons-food,
-body.category-commons-games-and-puzzles,
-body.category-commons-sports,
-body.category-commons-music,
-body.category-commons-literature,
-body.category-commons-film,
-body.category-commons-miscellaneous,
-body.category-commons-well-being
-{
-  @include category-accent($commons-hue, $commons-chroma, $commons-lightness);
+@each $slug, $tier in $tiered {
+  body[class*="category-#{$slug}"] {
+    @if $tier == academic {
+      --ba-display: #{$tier-academic};
+      --ba-display-weight: 600;
+      --ba-display-tracking: 0;
+    } @else if $tier == civic {
+      --ba-display: #{$tier-civic};
+      --ba-display-weight: 700;
+      --ba-display-tracking: -0.012em;
+    } @else if $tier == abyss {
+      --ba-display: #{$tier-abyss};
+      --ba-display-weight: 600;
+      --ba-display-tracking: -0.005em;
+    } @else {
+      --ba-display: #{$tier-system};
+      --ba-display-weight: 500;
+      --ba-display-tracking: -0.01em;
+    }
+  }
 }
 
-// ---------------------------------------------------------------------------
-// THE ABYSS — top-level page keeps the original single bioluminescent accent
-// as its own "base" identity. Its 14 subcategories each get their own hue
-// instead (see CHANGELOG v4), evenly spaced around the wheel, but all still
-// use the Abyss's dark/glow recipe rather than Academy's light one — so the
-// Abyss as a whole still reads as a distinct place, room to room within it
-// now reads as distinct too.
-//
-// Every subcategory below is nested, so Discourse only ever renders its
-// compound `category-blue-abyss-<slug>` class — confirmed live, see
-// CHANGELOG v3. This also correctly separates Abyss's Philosophy/Economics/
-// Law/Miscellaneous/Well Being from the Academy/Commons categories that
-// share those slugs, since the compound class is parent-scoped.
-// ---------------------------------------------------------------------------
-body.category-blue-abyss { @include abyss-category-accent(195); } // The Abyss — base glow
+// Applied where a title carries the world's voice. Everything else — post
+// bodies, chrome, forms — keeps the site's own typography untouched.
+.ba-masthead__name,
+.ba-idbar__name,
+body[class*="category-"] .topic-list-item .title,
+body[class*="category-"] .topic-list-item .raw-topic-link,
+body[class*="category-"] #topic-title .fancy-title,
+body[class*="category-"] .extra-info-wrapper .topic-link {
+  font-family: var(--ba-display, inherit);
+  font-weight: var(--ba-display-weight, inherit);
+  letter-spacing: var(--ba-display-tracking, inherit);
+}
 
-body.category-blue-abyss-culture-war       { @include abyss-category-accent(15); }
-body.category-blue-abyss-ethics            { @include abyss-category-accent(40); }
-body.category-blue-abyss-introductions     { @include abyss-category-accent(65); }
-body.category-blue-abyss-meet-up           { @include abyss-category-accent(90); }
-body.category-blue-abyss-politics-and-govt { @include abyss-category-accent(115); }
-body.category-blue-abyss-religion          { @include abyss-category-accent(140); }
-body.category-blue-abyss-social-norms      { @include abyss-category-accent(165); }
-body.category-blue-abyss-society           { @include abyss-category-accent(190); }
-body.category-blue-abyss-tmi               { @include abyss-category-accent(215); }
-body.category-blue-abyss-philosophy        { @include abyss-category-accent(240); } // Philosophy (BA)
-body.category-blue-abyss-economics         { @include abyss-category-accent(265); } // Economics (BA)
-body.category-blue-abyss-law               { @include abyss-category-accent(290); } // Law (BA)
-body.category-blue-abyss-miscellaneous     { @include abyss-category-accent(315); }
-body.category-blue-abyss-well-being        { @include abyss-category-accent(340); }
+// ── Motifs ──────────────────────────────────────────────────────────────────
+// Pure CSS gradients: no image files to upload, host or keep in sync, and one
+// line per world. Drawn in the world's accent at low opacity, masked so they
+// fade in from a corner rather than tiling flatly across the whole panel.
+[class*="ba-motif--"] {
+  position: relative;
+  isolation: isolate;
+}
+[class*="ba-motif--"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  color: var(--ba-accent, currentColor);
+  opacity: 0.16;
+  -webkit-mask-image: linear-gradient(115deg, transparent 28%, #000);
+  mask-image: linear-gradient(115deg, transparent 28%, #000);
+}
+.ba-motif--rings::after {
+  background-image: repeating-radial-gradient(circle at 92% 130%, currentColor 0 1px, transparent 1px 20px);
+}
+.ba-motif--lattice::after {
+  background-image: repeating-linear-gradient(60deg, currentColor 0 1px, transparent 1px 17px),
+    repeating-linear-gradient(-60deg, currentColor 0 1px, transparent 1px 17px);
+}
+.ba-motif--graticule::after {
+  background-image: repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 26px);
+}
+.ba-motif--halftone::after {
+  background-image: radial-gradient(currentColor 1.1px, transparent 1.2px);
+  background-size: 8px 8px;
+}
+.ba-motif--hatch::after {
+  background-image: repeating-linear-gradient(45deg, currentColor 0 1.6px, transparent 1.6px 8px);
+}
+.ba-motif--flutes::after {
+  background-image: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 11px);
+}
+.ba-motif--plot::after {
+  background-image: repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 15px),
+    repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 15px);
+}
+.ba-motif--weave::after {
+  background-image: repeating-linear-gradient(0deg, currentColor 0 3px, transparent 3px 11px),
+    repeating-linear-gradient(90deg, currentColor 0 3px, transparent 3px 11px);
+}
+.ba-motif--depth::after {
+  background-image: repeating-radial-gradient(ellipse 260px 90px at 50% 150%, currentColor 0 1px, transparent 1px 22px);
+}
+.ba-motif--blueprint::after {
+  background-image: repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 7px);
+}
+
+// ── Shared pieces ───────────────────────────────────────────────────────────
+.ba-mark {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  flex: none;
+}
+.ba-medallion {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 5px;
+  font-size: 1.35rem;
+  color: var(--ba-accent);
+  background: var(--ba-accent-soft);
+  border: 1px solid var(--ba-accent-line);
+  box-shadow: 0 0 0 4px var(--tertiary-low);
+}
+.ba-kicker {
+  font-family: var(--d-font-family--monospace, ui-monospace, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ba-accent);
+  display: flex;
+  gap: 0.5em;
+  align-items: baseline;
+}
+.ba-kicker__room {
+  color: var(--primary-medium);
+  letter-spacing: 0.08em;
+}
+.ba-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 0.55rem;
+  font-family: var(--d-font-family--monospace, ui-monospace, monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary-medium);
+  b {
+    color: var(--primary);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// ── The masthead ────────────────────────────────────────────────────────────
+.ba-masthead {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.05rem 1.2rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--primary-low);
+  border-radius: 5px;
+  background:
+    linear-gradient(165deg, var(--ba-accent-soft), transparent 70%),
+    var(--ba-panel, var(--secondary));
+}
+.ba-masthead__body {
+  flex: 1;
+  min-width: 0;
+}
+.ba-masthead__name {
+  margin: 0.2rem 0 0;
+  font-size: 1.65rem;
+  line-height: 1.1;
+  color: var(--primary);
+}
+.ba-masthead__blurb {
+  margin: 0.35rem 0 0;
+  max-width: 56ch;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--primary-medium);
+}
+.ba-masthead__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.ba-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--ba-accent);
+  background: transparent;
+  border: 1px solid var(--ba-accent-line);
+  &:hover,
+  &:focus-visible {
+    background: var(--ba-accent-soft);
+  }
+}
+
+// The rooms inside a world — Commons has 22, the Abyss 18.
+.ba-rooms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+}
+.ba-room {
+  padding: 0.15rem 0.6rem;
+  border-radius: 11px;
+  font-size: 0.76rem;
+  text-decoration: none;
+  color: var(--primary-medium);
+  background: var(--ba-panel, var(--secondary));
+  border: 1px solid var(--primary-low);
+  &:hover {
+    color: var(--ba-accent);
+    border-color: var(--ba-accent-line);
+  }
+}
+
+// ── The identity bar ────────────────────────────────────────────────────────
+// The piece that has to hold at reply 3,000.
+.ba-idbar {
+  position: sticky;
+  top: var(--header-offset, 60px);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.8rem;
+  margin-bottom: 0.6rem;
+  border: 1px solid var(--primary-low);
+  border-left: 3px solid var(--ba-accent);
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(90deg, var(--ba-accent-soft), var(--ba-panel, var(--secondary)) 60%);
+  backdrop-filter: blur(6px);
+}
+.ba-idbar__mark {
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  color: var(--ba-accent);
+}
+.ba-idbar__name {
+  font-size: 0.85rem;
+  color: var(--primary);
+}
+.ba-idbar__room {
+  font-size: 0.8rem;
+  color: var(--primary-medium);
+}
+.ba-idbar__spacer {
+  flex: 1;
+}
+.ba-idbar__rules {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.12rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 11px;
+  cursor: pointer;
+  color: var(--ba-accent);
+  background: transparent;
+  border: 1px solid var(--ba-accent-line);
+  &:hover {
+    background: var(--ba-accent-soft);
+  }
+}
+
+// ── The floating Rules button ───────────────────────────────────────────────
+.ba-fab {
+  position: fixed;
+  right: 1.15rem;
+  bottom: 1.15rem;
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 0;
+  border-radius: 22px;
+  cursor: pointer;
+  color: var(--secondary);
+  background: var(--ba-accent);
+  box-shadow:
+    0 3px 12px var(--ba-accent-soft),
+    0 0 0 5px var(--tertiary-low);
+  transition: transform 0.14s ease;
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+.composer-open .ba-fab {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ba-fab {
+    transition: none;
+  }
+}
+
+// ── The rules overlay ───────────────────────────────────────────────────────
+.ba-rules-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(2px);
+}
+.ba-rules-modal {
+  width: min(620px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  border-radius: 6px;
+  background: var(--secondary);
+  border: 1px solid var(--ba-accent-line);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.75);
+  &:focus {
+    outline: none;
+  }
+}
+.ba-rules-modal__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--primary-low);
+  background: linear-gradient(150deg, var(--ba-accent-soft), var(--ba-panel, var(--secondary)));
+  .ba-medallion {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 1.15rem;
+    border-radius: 4px;
+  }
+}
+.ba-rules-modal__title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.ba-rules-modal__name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--primary);
+  font-family: var(--ba-display, inherit);
+}
+.ba-rules-modal__close {
+  width: 1.65rem;
+  height: 1.65rem;
+  line-height: 1;
+  font-size: 1rem;
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--primary-medium);
+  background: transparent;
+  border: 1px solid var(--primary-low);
+  &:hover {
+    color: var(--primary);
+    border-color: var(--ba-accent-line);
+  }
+}
+.ba-rules-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  padding: 1.2rem 1.1rem 1rem;
+}
+.ba-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    font-family: var(--d-font-family--monospace, ui-monospace, monospace);
+    font-size: 0.63rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--primary-medium);
+    &::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--primary-low);
+    }
+  }
+}
+.ba-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  li {
+    display: grid;
+    grid-template-columns: 1.4rem 1fr;
+    gap: 0.6rem;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--primary);
+  }
+}
+.ba-list__n {
+  font-family: var(--d-font-family--monospace, ui-monospace, monospace);
+  font-size: 0.66rem;
+  padding-top: 0.2rem;
+  color: var(--ba-accent);
+  font-variant-numeric: tabular-nums;
+}
+.ba-list--tone .ba-list__n {
+  color: var(--primary-medium);
+}
+.ba-rules-modal__foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1.1rem;
+  border-top: 1px solid var(--primary-low);
+  background: var(--ba-panel, var(--secondary));
+  a {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ba-accent);
+  }
+}
+.ba-rules-modal__hint {
+  font-size: 0.7rem;
+  color: var(--primary-medium);
+  kbd {
+    font-family: var(--d-font-family--monospace, ui-monospace, monospace);
+    font-size: 0.65rem;
+    padding: 0 0.3em;
+    border: 1px solid var(--primary-low);
+    border-bottom-width: 2px;
+    border-radius: 3px;
+  }
+}
+
+// ── The Overton window ──────────────────────────────────────────────────────
+.ba-ov__standard {
+  margin: 0 0 0.8rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--primary);
+  b {
+    color: var(--ba-accent);
+  }
+}
+.ba-ov__track {
+  position: relative;
+  height: 1rem;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--primary-low);
+  background-color: var(--primary-very-low);
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--primary-low-mid) 0 1.5px,
+    transparent 1.5px 7px
+  );
+}
+.ba-ov__band {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  border-radius: 2px;
+  background: var(--ba-accent);
+  box-shadow: 0 0 14px var(--ba-accent-line);
+}
+.ba-ov__axis {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-top: 0.45rem;
+  span {
+    max-width: 44%;
+    font-family: var(--d-font-family--monospace, ui-monospace, monospace);
+    font-size: 0.62rem;
+    line-height: 1.35;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--primary-medium);
+    &:last-child {
+      text-align: right;
+    }
+  }
+}
+
+// ── The composer nudge ──────────────────────────────────────────────────────
+.ba-nudge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.76rem;
+  border: 1px solid var(--ba-accent-line);
+  border-radius: 3px;
+  color: var(--primary);
+  background: var(--ba-accent-soft);
+  b {
+    color: var(--ba-accent);
+  }
+}
+.ba-nudge__mark {
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
+  color: var(--ba-accent);
+}
+.ba-nudge__spacer {
+  flex: 1;
+}
+.ba-nudge__link {
+  padding: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ba-accent);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+}
+
+// ── The switcher ────────────────────────────────────────────────────────────
+.sidebar-section[data-section-name="blue-abyss-worlds"] {
+  .sidebar-section-link.active,
+  .sidebar-section-link[aria-current="page"] {
+    font-weight: 700;
+  }
+}
+
+// ── Mobile ──────────────────────────────────────────────────────────────────
+@media (max-width: 767px) {
+  .ba-masthead {
+    flex-wrap: wrap;
+    padding: 0.85rem 0.9rem;
+  }
+  .ba-masthead__actions {
+    flex-direction: row;
+    width: 100%;
+  }
+  .ba-masthead__name {
+    font-size: 1.35rem;
+  }
+  .ba-rooms {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .ba-room {
+    white-space: nowrap;
+  }
+  .ba-fab {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    padding: 0.55rem 0.85rem;
+  }
+  .ba-rules-scrim {
+    padding: 0.75rem;
+  }
+}
+
+// ── Optional: retire Discourse's own Categories section ─────────────────────
+// Off by default. Turn it on once members have found Worlds.
+@if $hide_default_categories_section {
+  .sidebar-section[data-section-name="categories"] {
+    display: none;
+  }
+}

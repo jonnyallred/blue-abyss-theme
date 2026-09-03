@@ -1,0 +1,73 @@
+# Blue Abyss — Worlds
+# ---------------------------------------------------------------------------
+# Editable at Admin > Customize > Themes > Blue Abyss > Settings. Anything
+# changed here applies immediately, with no deploy.
+
+world_icons:
+  type: string
+  default: "brain|hands-praying|earth-americas|landmark|bullhorn|scale-balanced|chart-line|people-group|water|sliders|shield-halved|book-open"
+  description:
+    en: >
+      Every Font Awesome mark this theme draws. Discourse adds the values of
+      any setting whose name contains "_icon" to the site's SVG sprite, which
+      is the supported way for a theme to ship glyphs. Keep this in sync with
+      the icons in javascripts/discourse/lib/worlds.js. Pipe-separated.
+
+enable_masthead:
+  type: bool
+  default: true
+  description:
+    en: "Show the world banner at the top of category pages."
+
+enable_identity_bar:
+  type: bool
+  default: true
+  description:
+    en: "Show the sticky world bar at the top of topic pages."
+
+enable_rules_button:
+  type: bool
+  default: true
+  description:
+    en: "Show the floating Rules button, and the overlay it opens."
+
+enable_composer_nudge:
+  type: bool
+  default: true
+  description:
+    en: "Show one line of the world's rules above the composer."
+
+auto_open_rules:
+  type: bool
+  default: true
+  description:
+    en: >
+      Open a world's rules automatically the first time a member enters it —
+      once per world, per member, per rules version. Stored in the browser, so
+      a member on a second device sees each world once more there.
+
+hide_default_categories_section:
+  type: bool
+  default: false
+  description:
+    en: >
+      Hide Discourse's own "Categories" section in the sidebar, leaving Worlds
+      as the only map. Leave this off until members have found the new section.
+
+switcher_heading:
+  type: string
+  default: "Worlds"
+  description:
+    en: "Heading for the sidebar section."
+
+rules_override:
+  type: string
+  default: ""
+  textarea: true
+  description:
+    en: >
+      Optional JSON, keyed by category slug, merged over the drafts in
+      javascripts/discourse/lib/rules.js. Use it to fix a rule now and commit
+      it properly later. Example:
+      {"mainstream-politics":{"short":"The op-ed test","standard":"..."}}
+      Invalid JSON is ignored and logged to the console.
