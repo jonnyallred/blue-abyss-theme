@@ -128,3 +128,21 @@ attribute: whenever the class lands, we see it. "Am I on a topic?" moved to
 the same read (`archetype-*` is on the body for topic routes and nothing
 else), so the router is no longer consulted and there is one source of truth
 instead of two that could disagree.
+
+## v9.8 — the accent as text is a different colour from the accent as a fill
+
+Politics (Conventional) is a deliberately desaturated navy, `oklch(52% 0.08
+250)`. Correct for a badge, a border or a fill. As a 1.9rem heading on a
+near-black ground it came out quieter than the topic title underneath it,
+which inverts exactly the emphasis the header exists to create. Light mode was
+fine — the same navy on a 97%-lightness ground reads well — so this was
+dark-mode only, and only visible once the header was actually large.
+
+Every world now carries `--ba-accent-text`, the same hue and chroma taken to
+45% lightness in light mode and 82% in dark. Text, marks and links use it;
+fills, borders, the Overton band and the floating button keep the true accent.
+
+**Also:** a world's own category badge is hidden on its topic list — 36
+identical "Politics (Conventional)" badges under a heading that already says
+so. Room badges stay, because in Commons and the Abyss they name where the
+topic actually lives.

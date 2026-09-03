@@ -62,19 +62,19 @@
 // ============================================================================
 
 // ── The worlds ──────────────────────────────────────────────────────────────
-// slug, hue, chroma, lightness, recipe. One row per world.
+// slug, category id, hue, chroma, lightness, recipe. One row per world.
 $worlds:
-  ("philosophy" 285 0.14 58% light),
-  ("religious-studies" 325 0.13 58% light),
-  ("international-politics" 255 0.14 58% light),
-  ("mainstream-politics" 250 0.08 52% light),
-  ("politics-critical" 35 0.18 58% light),
-  ("law" 75 0.13 58% light),
-  ("economics" 160 0.14 58% light),
-  ("commons" 200 0.12 58% light),
-  ("blue-abyss" 205 0.15 70% abyss),
-  ("meta" 250 0.012 55% system),
-  ("staff" 80 0.03 55% system);
+  ("philosophy" 48 285 0.14 58% light),
+  ("religious-studies" 44 325 0.13 58% light),
+  ("international-politics" 38 255 0.14 58% light),
+  ("mainstream-politics" 45 250 0.08 52% light),
+  ("politics-critical" 47 35 0.18 58% light),
+  ("law" 50 75 0.13 58% light),
+  ("economics" 49 160 0.14 58% light),
+  ("commons" 56 200 0.12 58% light),
+  ("blue-abyss" 43 205 0.15 70% abyss),
+  ("meta" 5 250 0.012 55% system),
+  ("staff" 4 80 0.03 55% system);
 
 @mixin world-tokens($hue, $chroma, $lightness, $recipe) {
   // The accent is mode-independent, as in Discourse's own palettes.
@@ -83,6 +83,17 @@ $worlds:
   --ba-accent: oklch(#{$lightness} #{$chroma} #{$hue});
   --ba-accent-soft: oklch(#{$lightness} #{$chroma} #{$hue} / 16%);
   --ba-accent-line: oklch(#{$lightness} #{$chroma} #{$hue} / 42%);
+
+  // The accent as TEXT, which is a different job from the accent as a fill.
+  // Politics (Conventional) is a deliberately desaturated navy — correct for a
+  // badge or a border, and far too dim for a 1.9rem heading on a near-black
+  // ground, where it ended up quieter than the topic title underneath it and
+  // inverted the emphasis the header exists to create. Fills and borders keep
+  // the true accent; anything set in it gets this instead.
+  --ba-accent-text: light-dark(
+    #{"oklch(45% #{$chroma} #{$hue})"},
+    #{"oklch(82% #{$chroma} #{$hue})"}
+  );
 
   // The Abyss runs a deeper ground and a stronger glow — the inner sanctum.
   $abyss: $recipe == abyss;
@@ -141,7 +152,7 @@ $worlds:
   --ba-panel: light-dark(#{$panel-l}, #{$panel-d});
 }
 
-@each $slug, $hue, $chroma, $lightness, $recipe in $worlds {
+@each $slug, $id, $hue, $chroma, $lightness, $recipe in $worlds {
   // Matches the world and every room inside it — see CHANGELOG v3.
   body[class*="category-#{$slug}"] {
     @include world-tokens($hue, $chroma, $lightness, $recipe);
@@ -224,7 +235,7 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   height: 2.75rem;
   border-radius: 5px;
   font-size: 1.35rem;
-  color: var(--ba-accent);
+  color: var(--ba-accent-text);
   background: var(--ba-accent-soft);
   border: 1px solid var(--ba-accent-line);
   box-shadow: 0 0 0 4px var(--tertiary-low);
@@ -234,7 +245,7 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   font-size: 0.62rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--ba-accent);
+  color: var(--ba-accent-text);
   display: flex;
   gap: 0.5em;
   align-items: baseline;
@@ -260,7 +271,7 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   background: var(--ba-panel, var(--secondary));
   border: 1px solid var(--primary-low);
   &:hover {
-    color: var(--ba-accent);
+    color: var(--ba-accent-text);
     border-color: var(--ba-accent-line);
   }
 }
@@ -292,17 +303,17 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   display: grid;
   place-items: center;
   font-size: 1.5rem;
-  color: var(--ba-accent);
+  color: var(--ba-accent-text);
 }
 .ba-worldhead__name {
   font-family: var(--ba-display, inherit);
   font-weight: var(--ba-display-weight, 700);
   letter-spacing: var(--ba-display-tracking, -0.015em);
   font-size: 1.9rem;
-  color: var(--ba-accent);
+  color: var(--ba-accent-text);
   text-decoration: none;
   &:hover {
-    color: var(--ba-accent);
+    color: var(--ba-accent-text);
     text-decoration: underline;
     text-underline-offset: 3px;
   }
@@ -317,7 +328,7 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
     opacity: 0.6;
   }
   &:hover {
-    color: var(--ba-accent);
+    color: var(--ba-accent-text);
   }
 }
 .ba-worldhead__rules {
@@ -331,7 +342,7 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   font-weight: 600;
   border-radius: 11px;
   cursor: pointer;
-  color: var(--ba-accent);
+  color: var(--ba-accent-text);
   background: transparent;
   border: 1px solid var(--ba-accent-line);
   &:hover {
@@ -342,11 +353,18 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
 // Inside a world, the native title block gives up top billing: the category
 // breadcrumb is redundant now that the world is named above, and the title
 // steps down to second voice. Scoped per world so Uncategorized is untouched.
-@each $slug, $hue, $chroma, $lightness, $recipe in $worlds {
+@each $slug, $id, $hue, $chroma, $lightness, $recipe in $worlds {
   body[class*="category-#{$slug}"] {
     #topic-title .topic-category {
       display: none;
     }
+    // The world is named above the list, so every row restating it is noise —
+    // 36 identical badges on Politics (Conventional). Room badges stay: in
+    // Commons and the Abyss they name where the topic actually lives.
+    .topic-list-item .badge-category__wrapper:has([data-category-id="#{$id}"]) {
+      display: none;
+    }
+
     #topic-title .fancy-title {
       font-size: 1.4rem;
       line-height: 1.25;
@@ -364,7 +382,7 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
       .categories-wrapper .badge-category__name {
         font-weight: 700;
         font-size: 0.95em;
-        color: var(--ba-accent);
+        color: var(--ba-accent-text);
       }
       .header-title .topic-link {
         font-weight: 400;
@@ -523,7 +541,7 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   font-family: var(--d-font-family--monospace, ui-monospace, monospace);
   font-size: 0.66rem;
   padding-top: 0.2rem;
-  color: var(--ba-accent);
+  color: var(--ba-accent-text);
   font-variant-numeric: tabular-nums;
 }
 .ba-list--tone .ba-list__n {
@@ -541,7 +559,7 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   a {
     font-size: 0.8rem;
     font-weight: 600;
-    color: var(--ba-accent);
+    color: var(--ba-accent-text);
   }
 }
 .ba-rules-modal__hint {
@@ -564,7 +582,7 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   line-height: 1.5;
   color: var(--primary);
   b {
-    color: var(--ba-accent);
+    color: var(--ba-accent-text);
   }
 }
 .ba-ov__track {
@@ -620,14 +638,14 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   color: var(--primary);
   background: var(--ba-accent-soft);
   b {
-    color: var(--ba-accent);
+    color: var(--ba-accent-text);
   }
 }
 .ba-nudge__mark {
   display: grid;
   place-items: center;
   font-size: 0.9rem;
-  color: var(--ba-accent);
+  color: var(--ba-accent-text);
 }
 .ba-nudge__spacer {
   flex: 1;
@@ -637,7 +655,7 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
-  color: var(--ba-accent);
+  color: var(--ba-accent-text);
   background: none;
   border: 0;
   border-bottom: 1px solid currentColor;
