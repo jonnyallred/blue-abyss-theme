@@ -27,7 +27,9 @@ enable_identity_bar:
   type: bool
   default: true
   description:
-    en: "Show the sticky world bar at the top of topic pages."
+    en: >
+      Name the world above the topic title, larger than the title itself, and
+      give the world prominence in Discourse's own sticky header on scroll.
 
 # ── The law: OFF until the charters are ratified ──────────────────────────
 # Identity ships first. The rule text in lib/rules.js is a draft, and the

@@ -18,20 +18,20 @@ import { worldForSlug } from "./worlds";
  * world. Uncategorized and anything not in worlds.js resolve to null, which
  * is the signal to draw nothing.
  *
- * "Am I on a topic?" comes from the same read — `archetype-regular` and
- * friends are on the body for topic routes and nothing else. v9.4 asked the
- * router instead, which was the second half of the deep-link bug: on a cold
- * load straight to /t/<slug>/<id>/1512 the body class is written AFTER
- * `page:changed` fires, so the one resolve attempt ran against a body that
- * did not name the category yet, and nothing ever re-ran it. Reading both
- * facts from one source, driven by a MutationObserver on the class attribute,
- * removes the ordering question entirely.
+ * Resolution is driven by a MutationObserver on the class attribute rather
+ * than by route events, because Discourse writes that class AFTER
+ * `page:changed` fires: on a cold load straight to /t/<slug>/<id>/1512 a
+ * one-shot resolve reads a body that does not name the category yet, and
+ * nothing re-runs it. Watching the attribute removes the ordering question.
+ *
+ * The topic-page world header does not use this — it is mounted alongside the
+ * title and reads the topic's own category. This serves the rules launcher,
+ * which must work on deep links, and the masthead's room list.
  */
 class WorldState {
   @tracked category = null; // the exact category, room or world
   @tracked parent = null; // its world's category, when in a room
   @tracked world = null; // the worlds.js entry
-  @tracked isTopic = false;
 
   /** The top-level category — for the mark, the rooms, the counts. */
   get topCategory() {
@@ -72,7 +72,4 @@ export function resolveCurrentWorld(site) {
   currentWorld.world = best
     ? worldForSlug((best.parent || best.category).slug)
     : null;
-  currentWorld.isTopic = Array.prototype.some.call(classes, (c) =>
-    c.startsWith("archetype-")
-  );
 }

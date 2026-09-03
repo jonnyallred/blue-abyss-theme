@@ -16,10 +16,16 @@ coloured medallion, its name set in the world's own typeface, its remit, its
 live topic and post counts, and its rooms. It does not reimplement *New Topic*
 or *Following* — those are core controls and they stay where they are.
 
-**A sticky identity bar.** On topic pages, the masthead collapses to a 34px
-bar pinned under the header: mark, world, room, Rules. This is the piece that
-has to hold at reply 3,000 of a megathread, which is most of Politics
-(Conventional).
+**An inverted topic header.** On a topic page the world is named *above* the
+title and larger than it — mark, world, room — and the native category
+breadcrumb goes away as redundant. The title steps down to second voice at
+1.4rem. Once you scroll past it, Discourse's own sticky header carries the
+world in its accent colour, which is also the only cue available on a deep
+link, where the title block never renders at all.
+
+This replaced a fixed, full-width, blurred bar in v9.6. That bar sat on top of
+the sidebar and clipped the New Topic button: an overlay smeared across the
+chrome rather than a piece of the page.
 
 **A switcher.** A *Worlds* section in the sidebar listing every top-level
 category in a fixed order, each with the icon and colour it already carries.

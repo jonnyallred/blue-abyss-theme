@@ -73,6 +73,26 @@ applied. Correct under the OS setting and under the toggle, and 12% less CSS.
   switched off.
 - Identity bar trimmed from 53px to 36px.
 
+## v9.6 — the world above the title, and no overlay
+
+The floating identity bar is gone. It was `position: fixed` and full width, so
+it sat on top of the sidebar and clipped the New Topic button, and the
+backdrop blur made it read as a smear rather than a bar.
+
+In its place the topic header is inverted: the world is named above the title
+in the world's display face at 1.9rem and in its accent colour, with the room
+after it; the topic title steps down to 1.4rem below; and the native category
+breadcrumb is hidden as redundant. Both pieces render from the same outlet the
+title itself uses, so they appear together or not at all.
+
+Deep links and deep scroll are covered by emphasising Discourse's own sticky
+header instead of adding anything that floats — the world name in the accent
+colour, the topic title lightened. Emphasised, not reordered: it is a 52px bar
+and reflowing it is how themes break the header.
+
+The masthead's gradient and per-world motif stay. On a full-width viewport
+they read as a banner, not an overlay.
+
 ## v9.5 — the deep-link bar, actually fixed
 
 v9.4 moved the identity bar to a global outlet, which was necessary but not

@@ -199,7 +199,7 @@ $tiered:
 // Applied where a title carries the world's voice. Everything else — post
 // bodies, chrome, forms — keeps the site's own typography untouched.
 .ba-masthead__name,
-.ba-idbar__name,
+.ba-topichead__name,
 body[class*="category-"] .topic-list-item .title,
 body[class*="category-"] .topic-list-item .raw-topic-link,
 body[class*="category-"] #topic-title .fancy-title,
@@ -390,61 +390,59 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   }
 }
 
-// ── The identity bar ────────────────────────────────────────────────────────
-// The piece that has to hold at reply 3,000. Fixed rather than sticky: it is
-// mounted from the global outlet (see lib/current-world.js), which is a
-// zero-height wrapper above #main-outlet, and sticky needs a tall containing
-// block. It ships its own in-flow spacer so nothing else needs padding.
-:root {
-  --ba-idbar-h: 2.25rem;
-}
-.ba-idbar-spacer {
-  height: calc(var(--ba-idbar-h) + 0.5rem);
-}
-.ba-idbar {
-  position: fixed;
-  top: var(--header-offset, 52px);
-  left: 0;
-  right: 0;
-  z-index: 800;
-  height: var(--ba-idbar-h);
+// ── The world above the topic title ─────────────────────────────────────────
+// v9.6 replaced a fixed, full-width, blurred bar with this: in flow, above
+// the title, no overlay. The hierarchy is inverted on purpose — the world
+// reads first and large, the topic second but still substantial.
+.ba-topichead {
   display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0 1rem;
-  border-bottom: 1px solid var(--primary-low);
-  box-shadow: inset 3px 0 0 var(--ba-accent);
-  background: linear-gradient(
-    90deg,
-    var(--ba-accent-soft),
-    var(--ba-panel, var(--secondary)) 55%
-  );
-  backdrop-filter: blur(8px);
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 0.55rem;
+  margin: 0 0 0.1rem;
+  line-height: 1.15;
 }
-.ba-idbar__mark {
+.ba-topichead__mark {
+  align-self: center;
   display: grid;
   place-items: center;
-  font-size: 0.95rem;
+  font-size: 1.5rem;
   color: var(--ba-accent);
 }
-.ba-idbar__name {
-  font-size: 0.82rem;
-  line-height: 1;
-  color: var(--primary);
+.ba-topichead__name {
+  font-family: var(--ba-display, inherit);
+  font-weight: var(--ba-display-weight, 700);
+  letter-spacing: var(--ba-display-tracking, -0.015em);
+  font-size: 1.9rem;
+  color: var(--ba-accent);
+  text-decoration: none;
+  &:hover {
+    color: var(--ba-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 }
-.ba-idbar__room {
-  font-size: 0.78rem;
+.ba-topichead__room {
+  font-size: 1rem;
   color: var(--primary-medium);
+  text-decoration: none;
+  &::before {
+    content: "›";
+    margin-right: 0.4rem;
+    opacity: 0.6;
+  }
+  &:hover {
+    color: var(--ba-accent);
+  }
 }
-.ba-idbar__spacer {
-  flex: 1;
-}
-.ba-idbar__rules {
+.ba-topichead__rules {
+  margin-left: auto;
+  align-self: center;
   display: inline-flex;
   align-items: center;
   gap: 0.35em;
-  padding: 0.1rem 0.6rem;
-  font-size: 0.7rem;
+  padding: 0.15rem 0.65rem;
+  font-size: 0.72rem;
   font-weight: 600;
   border-radius: 11px;
   cursor: pointer;
@@ -453,6 +451,41 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   border: 1px solid var(--ba-accent-line);
   &:hover {
     background: var(--ba-accent-soft);
+  }
+}
+
+// Inside a world, the native title block gives up top billing: the category
+// breadcrumb is redundant now that the world is named above, and the title
+// steps down to second voice. Scoped per world so Uncategorized is untouched.
+@each $slug, $hue, $chroma, $lightness, $recipe in $worlds {
+  body[class*="category-#{$slug}"] {
+    #topic-title .topic-category {
+      display: none;
+    }
+    #topic-title .fancy-title {
+      font-size: 1.4rem;
+      line-height: 1.25;
+      font-weight: 600;
+    }
+    #topic-title h1 {
+      margin-top: 0;
+    }
+
+    // Discourse's own sticky header, once you scroll past the title — and the
+    // only cue available on a deep link, where the title block never renders.
+    // Emphasised rather than reordered: it is a 52px bar and reflowing it is
+    // how themes break the header.
+    .extra-info-wrapper {
+      .categories-wrapper .badge-category__name {
+        font-weight: 700;
+        font-size: 0.95em;
+        color: var(--ba-accent);
+      }
+      .header-title .topic-link {
+        font-weight: 400;
+        opacity: 0.85;
+      }
+    }
   }
 }
 

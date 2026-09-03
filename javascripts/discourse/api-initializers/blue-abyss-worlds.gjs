@@ -1,6 +1,6 @@
 import { apiInitializer } from "discourse/lib/api";
 import ComposerRuleNudge from "../components/composer-rule-nudge";
-import WorldIdentityBar from "../components/world-identity-bar";
+import WorldTopicHeader from "../components/world-topic-header";
 import WorldMasthead from "../components/world-masthead";
 import WorldRulesLauncher from "../components/world-rules-launcher";
 import { resolveCurrentWorld } from "../lib/current-world";
@@ -42,13 +42,15 @@ export default apiInitializer((api) => {
     );
   }
 
-  // The identity bar and the rules launcher mount from the GLOBAL outlet and
-  // read the world from the body class, because core wraps the topic-page
-  // outlets in {{#unless shouldHideScrollableContentAbove}} — deep-link to
-  // /t/<slug>/<id>/1512 and they never render, which is exactly the case the
-  // identity bar exists for. See lib/current-world.js.
+  // The world header sits with the topic title, at the same outlet the title
+  // itself renders from — so the two appear together or not at all.
   if (s.enable_identity_bar !== false) {
-    api.renderInOutlet("above-main-container", WorldIdentityBar);
+    api.renderInOutlet(
+      "topic-above-post-stream",
+      <template>
+        <WorldTopicHeader @topic={{@outletArgs.model}} />
+      </template>
+    );
   }
 
   // ── The law ─────────────────────────────────────────────────────────────
