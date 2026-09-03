@@ -461,6 +461,24 @@ a.ba-worldhead__room {
       margin: 0 0 1.1rem;
     }
 
+    // Discourse draws the nav bar, and now the world header, 1000px wide with
+    // a 24px inset; `#list-area` beneath them is only the 952px of the inset
+    // itself, so the panel stepped in at the list and every row's rounded
+    // border sat hard against the edge of the fill. Widening the list area
+    // back out and re-adding the inset as padding gives the rows the same
+    // margin the header has, and lets the panel run as one surface from the
+    // nav bar to a rounded bottom. Desktop only: on narrow screens the
+    // container's own padding is smaller and a fixed negative margin would
+    // push the list into a horizontal scroll.
+    @media (min-width: 768px) {
+      #list-area {
+        margin-left: -1.5rem;
+        margin-right: -1.5rem;
+        padding: 0 1.5rem 1.25rem;
+        border-radius: 0 0 20px 20px;
+      }
+    }
+
     // Discourse's own sticky header, once you scroll past the title — and the
     // only cue available on a deep link, where the title block never renders.
     // Same inversion as the page: world first and larger, topic underneath.

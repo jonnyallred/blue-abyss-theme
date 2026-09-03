@@ -208,3 +208,18 @@ somewhere else and worth chasing with the browser named.
 using a marker that appeared *earlier* in the file than the section it was
 replacing, so ~94 lines were duplicated and the older copy sat later in the
 cascade. Deduplicated.
+
+## v9.12 — one panel, one width
+
+Discourse draws the nav bar 1000px wide with a 24px inset, and v9.11 matched
+the world header to it. `#list-area` underneath is only the 952px of the inset
+itself — so the panel stepped inward at the list, and every row's rounded
+border sat hard against the edge of the fill with no margin at all.
+
+The list area is widened back out and the inset re-added as padding, so the
+rows get the same 24px margin the header has and the whole thing reads as one
+surface from the nav bar down to a rounded bottom edge.
+
+Desktop only: on narrow screens the container's own padding is smaller, and a
+fixed negative margin there would push the list into a horizontal scroll.
+Scoped per world, so `/latest` and Uncategorized keep Discourse's own layout.
