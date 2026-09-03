@@ -13,18 +13,20 @@ const s = typeof settings === "undefined" ? {} : settings;
 
 export default apiInitializer((api) => {
   const site = api.container.lookup("service:site");
-  const router = api.container.lookup("service:router");
 
   // ── Where am I ──────────────────────────────────────────────────────────
-  // Resolved from the body class on every route change. Twice per change:
-  // once immediately, once after a frame, because the class is written during
-  // the transition and the first read can land just before it.
-  const refresh = () => {
-    resolveCurrentWorld(site, router?.currentRouteName);
-    window.requestAnimationFrame(() =>
-      resolveCurrentWorld(site, router?.currentRouteName)
-    );
-  };
+  // Driven by the body's class attribute rather than by route events, because
+  // Discourse writes that class AFTER `page:changed` fires — on a cold load
+  // straight to /t/<slug>/<id>/1512 a one-shot resolve runs against a body
+  // that does not name the category yet, and nothing re-runs it. Watching the
+  // attribute removes the ordering question: whenever the class lands, we see
+  // it. The read is a loop over the category list and sets tracked values
+  // only, so it cannot loop back on itself.
+  const refresh = () => resolveCurrentWorld(site);
+  new MutationObserver(refresh).observe(document.body, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
   api.onPageChange(refresh);
   refresh();
 

@@ -72,3 +72,22 @@ applied. Correct under the OS setting and under the toggle, and 12% less CSS.
   `enable_rules_button` — they were rendering, and doing nothing, with the law
   switched off.
 - Identity bar trimmed from 53px to 36px.
+
+## v9.5 — the deep-link bar, actually fixed
+
+v9.4 moved the identity bar to a global outlet, which was necessary but not
+sufficient: it still did not appear on `/t/coronavirus/1802/1512`, while
+working perfectly at the top of the same topic.
+
+The second half of the bug was ordering. Discourse writes the `category-…`
+body class **after** `page:changed` fires, so on a cold load straight to a
+deep link the one resolve attempt ran against a body that did not yet name the
+category — and nothing ever re-ran it. In-app navigation happened to work
+because the class from the previous page was still there to correct on the
+next event.
+
+Resolution is now driven by a `MutationObserver` on the body's class
+attribute: whenever the class lands, we see it. "Am I on a topic?" moved to
+the same read (`archetype-*` is on the body for topic routes and nothing
+else), so the router is no longer consulted and there is one source of truth
+instead of two that could disagree.

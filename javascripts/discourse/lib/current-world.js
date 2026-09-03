@@ -17,6 +17,15 @@ import { worldForSlug } from "./worlds";
  * `above-main-container` outlet. Longest token wins, so a room beats its
  * world. Uncategorized and anything not in worlds.js resolve to null, which
  * is the signal to draw nothing.
+ *
+ * "Am I on a topic?" comes from the same read — `archetype-regular` and
+ * friends are on the body for topic routes and nothing else. v9.4 asked the
+ * router instead, which was the second half of the deep-link bug: on a cold
+ * load straight to /t/<slug>/<id>/1512 the body class is written AFTER
+ * `page:changed` fires, so the one resolve attempt ran against a body that
+ * did not name the category yet, and nothing ever re-ran it. Reading both
+ * facts from one source, driven by a MutationObserver on the class attribute,
+ * removes the ordering question entirely.
  */
 class WorldState {
   @tracked category = null; // the exact category, room or world
@@ -37,7 +46,7 @@ class WorldState {
 
 export const currentWorld = new WorldState();
 
-export function resolveCurrentWorld(site, routeName) {
+export function resolveCurrentWorld(site) {
   const classes = document.body.classList;
   const categories = site?.categories || [];
   const byId = new Map(categories.map((c) => [c.id, c]));
@@ -63,5 +72,7 @@ export function resolveCurrentWorld(site, routeName) {
   currentWorld.world = best
     ? worldForSlug((best.parent || best.category).slug)
     : null;
-  currentWorld.isTopic = !!routeName && routeName.startsWith("topic.");
+  currentWorld.isTopic = Array.prototype.some.call(classes, (c) =>
+    c.startsWith("archetype-")
+  );
 }
