@@ -21,7 +21,7 @@ enable_masthead:
   type: bool
   default: true
   description:
-    en: "Show the world banner at the top of category pages."
+    en: "Name the world above the topic list on category pages."
 
 enable_identity_bar:
   type: bool

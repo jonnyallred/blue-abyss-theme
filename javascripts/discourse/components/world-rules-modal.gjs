@@ -45,7 +45,7 @@ export default class WorldRulesModal extends Component {
       {{on "click" this.onScrimClick}}
     >
       <div
-        class="ba-rules-modal ba-motif--{{@world.motif}}"
+        class="ba-rules-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="ba-rules-title"

@@ -73,6 +73,23 @@ applied. Correct under the OS setting and under the toggle, and 12% less CSS.
   switched off.
 - Identity bar trimmed from 53px to 36px.
 
+## v9.7 — one header, no panel
+
+The masthead is gone: a bordered block with a gradient wash, a per-world
+texture, the category description and live counts. At full width the texture
+was invisible, and the panel restated what the sidebar row and the accent
+colour already said.
+
+Category and topic pages now share one component and one line — mark, world
+name large in its own face and accent colour, room after it. Category pages
+add the room chips underneath, which are real navigation for Commons' 22 rooms
+and the Abyss's 18. Nothing translucent is left anywhere in the theme.
+
+Dropped with it: the per-world motif system (ten CSS gradient patterns, now
+with nothing to sit on — in git if a front-door design wants them back), the
+`blurb` first-sentence helper, and `.ba-stats` / `.ba-btn`. `worlds.js` loses
+its `motif` field.
+
 ## v9.6 — the world above the title, and no overlay
 
 The floating identity bar is gone. It was `position: fixed` and full width, so

@@ -198,8 +198,8 @@ $tiered:
 
 // Applied where a title carries the world's voice. Everything else — post
 // bodies, chrome, forms — keeps the site's own typography untouched.
-.ba-masthead__name,
-.ba-topichead__name,
+.ba-worldhead__name,
+.ba-worldhead__name,
 body[class*="category-"] .topic-list-item .title,
 body[class*="category-"] .topic-list-item .raw-topic-link,
 body[class*="category-"] #topic-title .fancy-title,
@@ -207,62 +207,6 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   font-family: var(--ba-display, inherit);
   font-weight: var(--ba-display-weight, inherit);
   letter-spacing: var(--ba-display-tracking, inherit);
-}
-
-// ── Motifs ──────────────────────────────────────────────────────────────────
-// Pure CSS gradients: no image files to upload, host or keep in sync, and one
-// line per world. Drawn in the world's accent at low opacity, masked so they
-// fade in from a corner rather than tiling flatly across the whole panel.
-[class*="ba-motif--"] {
-  position: relative;
-  isolation: isolate;
-}
-[class*="ba-motif--"]::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  color: var(--ba-accent, currentColor);
-  opacity: 0.16;
-  -webkit-mask-image: linear-gradient(115deg, transparent 28%, #000);
-  mask-image: linear-gradient(115deg, transparent 28%, #000);
-}
-.ba-motif--rings::after {
-  background-image: repeating-radial-gradient(circle at 92% 130%, currentColor 0 1px, transparent 1px 20px);
-}
-.ba-motif--lattice::after {
-  background-image: repeating-linear-gradient(60deg, currentColor 0 1px, transparent 1px 17px),
-    repeating-linear-gradient(-60deg, currentColor 0 1px, transparent 1px 17px);
-}
-.ba-motif--graticule::after {
-  background-image: repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 26px),
-    repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 26px);
-}
-.ba-motif--halftone::after {
-  background-image: radial-gradient(currentColor 1.1px, transparent 1.2px);
-  background-size: 8px 8px;
-}
-.ba-motif--hatch::after {
-  background-image: repeating-linear-gradient(45deg, currentColor 0 1.6px, transparent 1.6px 8px);
-}
-.ba-motif--flutes::after {
-  background-image: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 11px);
-}
-.ba-motif--plot::after {
-  background-image: repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 15px),
-    repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 15px);
-}
-.ba-motif--weave::after {
-  background-image: repeating-linear-gradient(0deg, currentColor 0 3px, transparent 3px 11px),
-    repeating-linear-gradient(90deg, currentColor 0 3px, transparent 3px 11px);
-}
-.ba-motif--depth::after {
-  background-image: repeating-radial-gradient(ellipse 260px 90px at 50% 150%, currentColor 0 1px, transparent 1px 22px);
-}
-.ba-motif--blueprint::after {
-  background-image: repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 7px),
-    repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 7px);
 }
 
 // ── Shared pieces ───────────────────────────────────────────────────────────
@@ -299,77 +243,8 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   color: var(--primary-medium);
   letter-spacing: 0.08em;
 }
-.ba-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.9rem;
-  margin-top: 0.55rem;
-  font-family: var(--d-font-family--monospace, ui-monospace, monospace);
-  font-size: 0.66rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--primary-medium);
-  b {
-    color: var(--primary);
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-  }
-}
 
-// ── The masthead ────────────────────────────────────────────────────────────
-.ba-masthead {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-  padding: 1.05rem 1.2rem;
-  margin-bottom: 0.75rem;
-  border: 1px solid var(--primary-low);
-  border-radius: 5px;
-  background:
-    linear-gradient(165deg, var(--ba-accent-soft), transparent 70%),
-    var(--ba-panel, var(--secondary));
-}
-.ba-masthead__body {
-  flex: 1;
-  min-width: 0;
-}
-.ba-masthead__name {
-  margin: 0.2rem 0 0;
-  font-size: 1.65rem;
-  line-height: 1.1;
-  color: var(--primary);
-}
-.ba-masthead__blurb {
-  margin: 0.35rem 0 0;
-  max-width: 56ch;
-  font-size: 0.86rem;
-  line-height: 1.45;
-  color: var(--primary-medium);
-}
-.ba-masthead__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-.ba-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45em;
-  padding: 0.4rem 0.85rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border-radius: 3px;
-  cursor: pointer;
-  color: var(--ba-accent);
-  background: transparent;
-  border: 1px solid var(--ba-accent-line);
-  &:hover,
-  &:focus-visible {
-    background: var(--ba-accent-soft);
-  }
-}
-
-// The rooms inside a world — Commons has 22, the Abyss 18.
+// ── The rooms inside a world — Commons has 22, the Abyss 18 ──────────────
 .ba-rooms {
   display: flex;
   flex-wrap: wrap;
@@ -390,26 +265,36 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
   }
 }
 
-// ── The world above the topic title ─────────────────────────────────────────
-// v9.6 replaced a fixed, full-width, blurred bar with this: in flow, above
-// the title, no overlay. The hierarchy is inverted on purpose — the world
-// reads first and large, the topic second but still substantial.
-.ba-topichead {
+// ── The world header ────────────────────────────────────────────────────────
+// One line, both page types. It replaced a bordered masthead panel (gradient,
+// texture, description, counts) on category pages and a fixed translucent bar
+// on topic pages — neither earned the space. On a topic page the hierarchy is
+// inverted on purpose: the world reads first and large, the title second but
+// still substantial.
+.ba-worldhead {
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
   gap: 0 0.55rem;
-  margin: 0 0 0.1rem;
+  margin: 0 0 0.35rem;
   line-height: 1.15;
 }
-.ba-topichead__mark {
+// On a category page the header is the whole banner, so it gets breathing
+// room before the list. On a topic page the title follows immediately.
+.ba-worldhead:has(+ .ba-rooms) {
+  margin-bottom: 0.5rem;
+}
+.ba-rooms + * {
+  margin-top: 0.2rem;
+}
+.ba-worldhead__mark {
   align-self: center;
   display: grid;
   place-items: center;
   font-size: 1.5rem;
   color: var(--ba-accent);
 }
-.ba-topichead__name {
+.ba-worldhead__name {
   font-family: var(--ba-display, inherit);
   font-weight: var(--ba-display-weight, 700);
   letter-spacing: var(--ba-display-tracking, -0.015em);
@@ -422,7 +307,7 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
     text-underline-offset: 3px;
   }
 }
-.ba-topichead__room {
+.ba-worldhead__room {
   font-size: 1rem;
   color: var(--primary-medium);
   text-decoration: none;
@@ -435,7 +320,7 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
     color: var(--ba-accent);
   }
 }
-.ba-topichead__rules {
+.ba-worldhead__rules {
   margin-left: auto;
   align-self: center;
   display: inline-flex;
@@ -768,16 +653,11 @@ body[class*="category-"] .extra-info-wrapper .topic-link {
 
 // ── Mobile ──────────────────────────────────────────────────────────────────
 @media (max-width: 767px) {
-  .ba-masthead {
-    flex-wrap: wrap;
-    padding: 0.85rem 0.9rem;
+  .ba-worldhead__name {
+    font-size: 1.45rem;
   }
-  .ba-masthead__actions {
-    flex-direction: row;
-    width: 100%;
-  }
-  .ba-masthead__name {
-    font-size: 1.35rem;
+  .ba-worldhead__rules {
+    margin-left: 0;
   }
   .ba-rooms {
     flex-wrap: nowrap;

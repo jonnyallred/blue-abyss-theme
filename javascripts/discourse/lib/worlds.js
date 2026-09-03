@@ -2,9 +2,13 @@
  * Blue Abyss — Worlds
  * ---------------------------------------------------------------------------
  * SINGLE SOURCE OF TRUTH. One entry per top-level category ("world").
- * Everything the theme draws — accent, mark, typeface tier, background motif,
- * masthead, rules overlay — is generated from this file. Adding a twelfth
- * world means adding a twelfth entry here and one line in common.scss.
+ * Everything the theme draws — accent, mark, typeface tier, header, rules
+ * overlay — is generated from this file. Adding a twelfth world means adding
+ * a twelfth entry here and one line in common.scss.
+ *
+ * v9.7 dropped the per-world background motifs. They were a texture layer
+ * under the masthead, and once the masthead went there was nothing left for
+ * them to sit on. They are in git if a future front-door design wants them.
  *
  * `slug`    must match the category's Discourse slug exactly.
  * `hue`     is the OKLCH hue used by common.scss. Kept >= 30 degrees from
@@ -28,7 +32,6 @@ export const WORLDS = [
     hue: 285,
     hex: "#6D4FBF",
     tier: "academic",
-    motif: "rings",
     recipe: "light",
     blurb:
       "Epistemology, ethics, philosophy of mind and science, logic, aesthetics — and the philosophers themselves.",
@@ -40,7 +43,6 @@ export const WORLDS = [
     hue: 325,
     hex: "#9C5EAA",
     tier: "academic",
-    motif: "lattice",
     recipe: "light",
     blurb:
       "Geeking out about religion — text, history, doctrine and practice, from inside and outside.",
@@ -52,7 +54,6 @@ export const WORLDS = [
     hue: 255,
     hex: "#3A6BD0",
     tier: "civic",
-    motif: "graticule",
     recipe: "light",
     blurb: "States, wars, treaties, and the order between them.",
   },
@@ -65,7 +66,6 @@ export const WORLDS = [
     lightness: 52,
     hex: "#2B4C7E",
     tier: "civic",
-    motif: "halftone",
     recipe: "light",
     blurb:
       "American politics as the mainstream argues it — elections, institutions, the news cycle.",
@@ -78,7 +78,6 @@ export const WORLDS = [
     chroma: 0.18,
     hex: "#D9481F",
     tier: "civic",
-    motif: "hatch",
     recipe: "light",
     blurb: "Where the mainstream frame is the thing under examination.",
   },
@@ -90,7 +89,6 @@ export const WORLDS = [
     chroma: 0.13,
     hex: "#A87024",
     tier: "academic",
-    motif: "flutes",
     recipe: "light",
     blurb: "Jurisprudence, doctrine, case-law analysis and legal philosophy.",
   },
@@ -101,7 +99,6 @@ export const WORLDS = [
     hue: 160,
     hex: "#0F9A6B",
     tier: "academic",
-    motif: "plot",
     recipe: "light",
     blurb:
       "Theory, economic history, monetary policy, behavioural economics.",
@@ -114,7 +111,6 @@ export const WORLDS = [
     chroma: 0.12,
     hex: "#1C989E",
     tier: "commons",
-    motif: "weave",
     recipe: "light",
     unified: true,
     blurb:
@@ -129,7 +125,6 @@ export const WORLDS = [
     lightness: 70,
     hex: "#37D0E8",
     tier: "abyss",
-    motif: "depth",
     recipe: "abyss",
     unified: true,
     blurb:
@@ -143,7 +138,6 @@ export const WORLDS = [
     chroma: 0.012,
     hex: "#5C6672",
     tier: "system",
-    motif: "blueprint",
     recipe: "system",
     unified: true,
     blurb:
@@ -157,7 +151,6 @@ export const WORLDS = [
     chroma: 0.03,
     hex: "#7A6A46",
     tier: "system",
-    motif: "hatch",
     recipe: "system",
     blurb: "Moderator working room. Not listed for members.",
   },

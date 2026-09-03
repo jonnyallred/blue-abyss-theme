@@ -11,21 +11,22 @@ alone could never do.
 
 ## What it adds
 
-**A masthead.** At the top of every category page: the world's mark in a
-coloured medallion, its name set in the world's own typeface, its remit, its
-live topic and post counts, and its rooms. It does not reimplement *New Topic*
-or *Following* — those are core controls and they stay where they are.
+**One world header, both page types.** A single line: the world's mark, its
+name large and in its own typeface and accent colour, and the room after it.
+On a category page it sits above the topic list, with the world's rooms as
+chips underneath. On a topic page it sits above the title — and the title
+steps down to second voice at 1.4rem while the native category breadcrumb
+goes away as redundant. Once you scroll past it, Discourse's own sticky header
+carries the world in its accent colour, which is also the only cue available
+on a deep link, where the title block never renders at all.
 
-**An inverted topic header.** On a topic page the world is named *above* the
-title and larger than it — mark, world, room — and the native category
-breadcrumb goes away as redundant. The title steps down to second voice at
-1.4rem. Once you scroll past it, Discourse's own sticky header carries the
-world in its accent colour, which is also the only cue available on a deep
-link, where the title block never renders at all.
-
-This replaced a fixed, full-width, blurred bar in v9.6. That bar sat on top of
-the sidebar and clipped the New Topic button: an overlay smeared across the
-chrome rather than a piece of the page.
+Two earlier designs are gone, and it is worth saying why. A bordered masthead
+panel with a gradient wash, a per-world texture, the category description and
+live counts: at full width the texture was invisible and the panel restated
+what the sidebar and the accent colour already said. And a fixed, full-width,
+blurred identity bar on topic pages: it sat on top of the sidebar and clipped
+the New Topic button — an overlay smeared across the chrome rather than a
+piece of the page.
 
 **A switcher.** A *Worlds* section in the sidebar listing every top-level
 category in a fixed order, each with the icon and colour it already carries.
@@ -159,9 +160,6 @@ exports this month — and open an injection surface on admin-editable text —
 a subcategory. `[class*="category-<slug>"]` catches a world and every room
 inside it, so Commons' 22 rooms and the Abyss's 18 need no CSS, and neither
 will the next one.
-
-**Motifs are CSS gradients.** No image files to upload, host, or keep in sync
-— and no per-category asset for you to maintain as the forum grows.
 
 **Marks come from Discourse's own sprite.** The `world_icons` setting exists
 because Discourse adds the value of any theme setting whose name contains

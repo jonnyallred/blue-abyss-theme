@@ -1,7 +1,6 @@
 import { apiInitializer } from "discourse/lib/api";
 import ComposerRuleNudge from "../components/composer-rule-nudge";
-import WorldTopicHeader from "../components/world-topic-header";
-import WorldMasthead from "../components/world-masthead";
+import WorldHeader from "../components/world-header";
 import WorldRulesLauncher from "../components/world-rules-launcher";
 import { resolveCurrentWorld } from "../lib/current-world";
 import { RULES_VERSION } from "../lib/rules";
@@ -37,18 +36,18 @@ export default apiInitializer((api) => {
     api.renderInOutlet(
       "discovery-above",
       <template>
-        <WorldMasthead @category={{@outletArgs.category}} />
+        <WorldHeader @category={{@outletArgs.category}} @showRooms={{true}} />
       </template>
     );
   }
 
-  // The world header sits with the topic title, at the same outlet the title
-  // itself renders from — so the two appear together or not at all.
+  // The same header on topic pages, at the same outlet the title itself
+  // renders from — so the two appear together or not at all.
   if (s.enable_identity_bar !== false) {
     api.renderInOutlet(
       "topic-above-post-stream",
       <template>
-        <WorldTopicHeader @topic={{@outletArgs.model}} />
+        <WorldHeader @category={{@outletArgs.model.category}} />
       </template>
     );
   }
